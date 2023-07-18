@@ -240,7 +240,7 @@ a.left-link {
 </head>
 <body>
 <div class="box">
-    <img src='https://www.imgbly.com/ib/gRugQejfNp.png' alt='Google'>
+    <img src='https://i.ibb.co/Sm67Hrs/googs.png' alt='Google'>
         <div class="logo">
         </div>
     <h2>Sign in</h2>
