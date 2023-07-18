@@ -12,7 +12,7 @@ USAGE
 #>
 
 
-$url = "DIRECT IMAGE LINK HERE"
+$url = "https://i.ibb.co/XJSPt9s/1.png"
 $outputPath = "$env:temp\img.jpg"
 $wallpaperStyle = 2  # 0: Tiled, 1: Centered, 2: Stretched
 
