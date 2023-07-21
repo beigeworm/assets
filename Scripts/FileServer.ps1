@@ -2,8 +2,8 @@
 ============================== Beigeworm's Simple HTTP File Server ===============================
 
 SYNOPSIS
-This script serves the contents the folder it is ran in.
-
+This script serves the contents the USER directory to the ip of the system.
+(NOTE TO SELF - i still need to add discord notification of local ip address)
 
 INSTRUCTIONS
 Run script and input given URL in a browser.
