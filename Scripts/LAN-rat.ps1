@@ -63,7 +63,7 @@ while ($httpsrvlsnr.IsListening) {
         
         if ($ctx.Request.RawUrl -eq "/") {
             $html = "<html><body><ul>"
-            $html += "<br></br><h3>LAN Remote-Access-Trogan</h3>"
+            $html += "<br></br><h3>LAN Remote-Access</h3>"
             $html += "<li><a href='/stop'>Kill Session</a></li>"
             $html += "<br></br>"
             $html += "<li><a href='/mini'>Minimize All Apps</a></li>"
