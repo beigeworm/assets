@@ -22,5 +22,5 @@ Start-Sleep 1
 Remove-Item -Path $filett
 
 
-Start-Sleep 300 # change to whatever interval you would like beetween screenshots
+Start-Sleep 60 # change to whatever interval you would like beetween screenshots
 }
