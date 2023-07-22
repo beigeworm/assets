@@ -78,15 +78,15 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<li><a href='/joke'>Tell a Dad Joke</a></li>"
             $html += "<li><a href='/inputon'>Enable Mouse and Keyboard</a></li>"
             $html += "<li><a href='/inputoff'>Disable Mouse and Keyboard</a></li>"
-            $html += "</ul></body></html>"
-            $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr>"
-            $html += "<h1>PowerShell Command Input</h1>"
+            $html += "</ul><ul>"
+            $html += "<h3>Stop the Server </h3><a href='/stop'><button>STOP SERVER</button></a><hr>"
+            $html += "<h3>PowerShell Command Input</h3>"
             $html += "<form method='post' action='/execute'>"
             $html += "<input type='submit' value='Execute'>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
             $html += "</form>"
             $html += "<br></br>"
-            $html += "</body></html>"
+            $html += "</ul></body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
             $ctx.Response.ContentLength64 = $buffer.Length;
             $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
