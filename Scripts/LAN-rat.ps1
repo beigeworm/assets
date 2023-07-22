@@ -82,7 +82,7 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<h3>Stop the Server </h3><a href='/stop'><button>STOP SERVER</button></a><hr>"
             $html += "<h3>PowerShell Command Input</h3>"
             $html += "<form method='post' action='/execute'>"
-            $html += "<input type='submit' value='Execute'>"
+            $html += "<input type='submit' value='Execute'><br>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
             $html += "</form>"
             $html += "<br></br>"
