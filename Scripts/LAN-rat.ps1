@@ -48,8 +48,8 @@ $jsonsys = @{"username" = "$env:COMPUTERNAME"
 Start-Sleep 1
 Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
 
-Write-Host "Server Starting at > http://localhost:5000/"
-Write-Host ("Other Network Devices Can Reach it at > http://"+$loip+":5000")
+Write-Host "Server Starting at : http://localhost:5000/"
+Write-Host ("Other Network Devices Can Reach it at : http://"+$loip+":5000")
 $httpsrvlsnr = New-Object System.Net.HttpListener;
 
 $httpsrvlsnr.Prefixes.Add("http://"+$loip+":5000/");
