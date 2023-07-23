@@ -153,11 +153,11 @@ WshShell.Run "chrome.exe --new-window -kiosk https://fakeupdate.net/win8", 1, Fa
 WScript.Sleep 200
 WshShell.SendKeys "{F11}"
 '@
-$pth = "$env:APPDATA\Microsoft\Windows\1021.vbs"
+$pth = "$env:APPDATA\Microsoft\Windows\1031.vbs"
 $tobat | Out-File -FilePath $pth -Force
 sleep 1
 Start-Process -FilePath $pth
-sleep 10
+sleep 5
 Write-Output "Done."
 Remove-Item -Path $pth -Force
 }
@@ -174,7 +174,7 @@ $pth = "$env:APPDATA\Microsoft\Windows\1021.vbs"
 $tobat | Out-File -FilePath $pth -Force
 sleep 1
 Start-Process -FilePath $pth
-sleep 10
+sleep 5
 Write-Output "Done."
 Remove-Item -Path $pth -Force
 }
