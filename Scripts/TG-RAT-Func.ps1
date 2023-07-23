@@ -144,45 +144,37 @@ Write-Output "Done."
 }
 
 Function FakeUpdate {
-        $firstart = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge"
-        If (Test-Path $firstart) {
-        New-Item $firstart
-        }
-        Set-ItemProperty $firstart HideFirstRunExperience -Value 1
-        cmd.exe /c start chrome.exe --new-window -kiosk "https://fakeupdate.net/win8"
-    function Do-SendKeys {
-    param (
-        $SENDKEYS,
-        $WINDOWTITLE
-    )
-    $wshell = New-Object -ComObject wscript.shell;
-    IF ($WINDOWTITLE) {$wshell.AppActivate($WINDOWTITLE)}
-    Sleep 1
-    IF ($SENDKEYS) {$wshell.SendKeys($SENDKEYS)}
-}
-    Do-SendKeys -WINDOWTITLE chrome.exe -SENDKEYS '{f11}'
-    Write-Output "Done."
+$tobat = @'
+Set WshShell = WScript.CreateObject("WScript.Shell")
+WshShell.Run "C:\Windows\System32\scrnsave.scr"
+WshShell.Run "chrome.exe --new-window -kiosk https://fakeupdate.net/win8", 1, False
+WScript.Sleep 200
+WshShell.SendKeys "{F11}"
+'@
+$pth = "$env:APPDATA\Microsoft\Windows\1021.vbs"
+$tobat | Out-File -FilePath $pth -Force
+sleep 1
+Start-Process -FilePath $pth
+sleep 10
+Write-Output "Done."
+Remove-Item -Path $pth -Force
 }
 
 Function Win93 {
-         $firstart = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge"
-        If (Test-Path $firstart) {
-        New-Item $firstart
-        }
-        Set-ItemProperty $firstart HideFirstRunExperience -Value 1
-        cmd.exe /c start chrome.exe --new-window -kiosk "windows93.net"
-           function Do-SendKeys {
-    param (
-        $SENDKEYS,
-        $WINDOWTITLE
-    )
-    $wshell = New-Object -ComObject wscript.shell;
-    IF ($WINDOWTITLE) {$wshell.AppActivate($WINDOWTITLE)}
-    Sleep 1
-    IF ($SENDKEYS) {$wshell.SendKeys($SENDKEYS)}
-}
-    Do-SendKeys -WINDOWTITLE chrome.exe -SENDKEYS '{f11}'
-    Write-Output "Done."
+$tobat = @'
+Set WshShell = WScript.CreateObject("WScript.Shell")
+WshShell.Run "C:\Windows\System32\scrnsave.scr"
+WshShell.Run "chrome.exe --new-window -kiosk windows93.net", 1, False
+WScript.Sleep 200
+WshShell.SendKeys "{F11}"
+'@
+$pth = "$env:APPDATA\Microsoft\Windows\1021.vbs"
+$tobat | Out-File -FilePath $pth -Force
+sleep 1
+Start-Process -FilePath $pth
+sleep 10
+Write-Output "Done."
+Remove-Item -Path $pth -Force
 }
 
 
