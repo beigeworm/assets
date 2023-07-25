@@ -54,10 +54,10 @@ $networkInterfaces = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.
 $filteredInterfaces = $networkInterfaces | Where-Object { $_.Name -match 'Wi*' -or  $_.Name -match 'Eth*'}
 $primaryInterface = $filteredInterfaces | Select-Object -First 1
 if ($primaryInterface) {
-    if ($primaryInterface.Name -contains 'Wi-Fi') {
+    if ($primaryInterface.Name -match 'Wi*') {
         Write-Output "Wi-Fi is the primary internet connection."
         $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
-    } elseif ($primaryInterface.Name -contains 'Ethernet') {
+    } elseif ($primaryInterface.Name -match 'Eth*') {
         Write-Output "Ethernet is the primary internet connection."
         $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Eth*" | Select-Object -ExpandProperty IPAddress
     } else {
