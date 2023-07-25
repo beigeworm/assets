@@ -21,7 +21,7 @@ function Get-RandomName {
     $randomNoun = Get-Random -InputObject $nouns
     $randomNumber = Get-Random -InputObject $numbers
 
-    return "$randomAdjective-$randomNoun-$randomNumber)"
+    return "$randomAdjective-$randomNoun"
 }
 
 Function Get-RandomNumber{
