@@ -21,7 +21,7 @@ Run script and input given URL in a browser.
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan
 Write-Host "=========================================================================`n" -ForegroundColor Cyan
-Write-Host "Written by @beigeowrm (https://github.com/beigeworm)"
+Write-Host "Written by @beigeowrm (https://github.com/beigeworm)" -ForegroundColor Grey
 Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
