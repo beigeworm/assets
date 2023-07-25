@@ -22,7 +22,7 @@ function Get-RandomName {
 Function Get-RandomNumber{
 $numbers = 0..9999
 $randomNumber = Get-Random -InputObject $numbers
-return "$randomNumber"
+return "_$randomNumber"
 }
 
 function Get-RandomFileExtension {
