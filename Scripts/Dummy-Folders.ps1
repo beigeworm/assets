@@ -26,7 +26,7 @@ return "$randomNumber"
 }
 
 function Get-RandomFileExtension {
-    $fileExtensions = @('.txt', '.docx', '.xlsx', '.pptx', '.pdf', '.jpg', '.png', '.mp3', '.mp4', '.zip')
+    $fileExtensions = @('.txt', '.docx', '.xlsx', '.rtf', '.pdf', '.jpg', '.png', '.mp3', '.mp4', '.zip', '.log', '.cs', '.js', '.jar', '.ps1')
     return Get-Random -InputObject $fileExtensions
 }
 
