@@ -21,10 +21,11 @@ Run script and input given URL in a browser.
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan
 Write-Host "=========================================================================`n" -ForegroundColor Cyan
-Write-Host "This script wil start a HTTP fileserver with the contents of this folder.`n"
+Write-Host "Written by @beigeowrm (https://github.com/beigeworm)"
+Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
-Write-Host "Setting Up..`n"
+Write-Host "============================ Server Setup ===============================" -ForegroundColor Green
 
 Add-Type -AssemblyName PresentationCore,PresentationFramework
 Add-Type -AssemblyName System.Windows.Forms
@@ -38,9 +39,7 @@ $Ask = '        This Script Needs Administrator Privileges.
 
         Select "OK" to Run as an Administrator
         
-        Select "Cancel" to Stop the Script
-        
-        (Needed for Opening Ports and Serving Files)'
+        Select "Cancel" to Stop the Script'
 
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
     Write-Host "Admin privileges needed for this script..." -ForegroundColor Red
@@ -48,7 +47,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     $Prompt = [System.Windows.MessageBox]::Show($Ask, "Run as an Admin?", $Button, $ErrorIco) 
     Switch ($Prompt) {
         OK {
-            Write-Host "This script will self elevate to run as an Administrator and continue." - ForegroundColor Green
+            Write-Host "This script will self elevate to run as an Administrator and continue." -ForegroundColor Green
             $fpath = $PWD.Path
             $fpath | Out-File -FilePath "$env:temp/homepath.txt"
             sleep 1
@@ -84,6 +83,8 @@ if ($primaryInterface) {
 }
 
 Write-Host "Opening port 5000 on the local machine"
+Write-Host "Setup Complete! `n" -ForegroundColor Green
+Write-Host "========================== Server Details =============================="
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 
 Write-Host "Checking folder path.."
