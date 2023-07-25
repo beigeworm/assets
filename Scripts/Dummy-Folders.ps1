@@ -21,7 +21,7 @@ function Get-RandomName {
     $randomNoun = Get-Random -InputObject $nouns
     $randomNumber = Get-Random -InputObject $numbers
 
-    return "$randomAdjective-$randomNoun_$('{0:D4}' -f $randomNumber)"
+    return "$randomAdjective-$randomNoun-$('{0:D4}' -f $randomNumber)"
 }
 
 function Get-RandomFileExtension {
