@@ -15,11 +15,13 @@ function Get-RandomName {
         'Robot', 'Dragon', 'Wizard', 'Ninja', 'Pirate', 'Knight', 'Princess', 'King', 'Queen', 'Alien',
         'Dinosaur', 'Unicorn', 'Mermaid', 'Superhero', 'Vampire', 'Werewolf', 'Ghost', 'Zombie', 'Witch', 'Fairy'
     )
-    $randomAdjective = Get-Random -InputObject $adjectives
-    $randomNoun = Get-Random -InputObject $nouns
+
     $randomNumber = Get-Random -Minimum 0 -Maximum 10000
     $paddedNumber = '{0:d4}' -f $randomNumber
-
+    
+    $randomAdjective = Get-Random -InputObject $adjectives
+    $randomNoun = Get-Random -InputObject $nouns
+    
     return "$randomAdjective-$randomNoun $paddedNumber"
 }
 
