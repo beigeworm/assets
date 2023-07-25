@@ -1,12 +1,37 @@
-﻿#$fpath = $PWD.Path
-#$fpath | Out-File -FilePath "$env:temp/homepath.txt"
+﻿<#
+============================== Beigeworm's HTTP File Server ===============================
 
-Write-Host "Starting Simple HTTP Server..." -ForegroundColor Green
-Write-Host "#====================== Simple HTTP File Server ======================="
+SYNOPSIS
+This script serves the contents the folder it is ran in.
+
+INSTRUCTIONS
+Run script and input given URL in a browser.
+
+#>
+<#
+============================== Beigeworm's HTTP File Server ===============================
+
+SYNOPSIS
+This script serves the contents the folder it is ran in.
+
+INSTRUCTIONS
+Run script and input given URL in a browser.
+
+#>
+Write-Host "=========================================================================" -ForegroundColor Cyan
+Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan
+Write-Host "=========================================================================`n" -ForegroundColor Cyan
+Write-Host "This script wil start a HTTP fileserver with the contents of this folder.`n"
+sleep 1
+
+Write-Host "Setting Up..`n"
 
 Add-Type -AssemblyName PresentationCore,PresentationFramework
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
+
+Write-Host "Checking User Permissions.."
+sleep 1
 
 $Button = [System.Windows.MessageBoxButton]::OKCancel
 $ErrorIco = [System.Windows.MessageBoxImage]::Information
@@ -25,6 +50,8 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     Switch ($Prompt) {
         OK {
             Write-Host "This script will self elevate to run as an Administrator and continue."
+            $fpath = $PWD.Path
+            $fpath | Out-File -FilePath "$env:temp/homepath.txt"
             sleep 1
             Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
             Exit
@@ -36,23 +63,33 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     }
 }
 
-New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP –LocalPort 5000 -Action Allow
-$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" | Select-Object -ExpandProperty IPAddress
+Write-Host "Opening port 5000 on the local machine"
+New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
+
+Write-Host "Checking local IP address for Wi-fi.."
+$loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
+
+sleep 1
+Write-Host "Checking folder path.."
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd "$hpath"
-Write-Host "Server Starting at > http://localhost:5000/"
-Write-Host ("Other Network Devices Can Reach it at > http://"+$loip+":5000")
+
+Write-Host "Server Starting at : http://localhost:5000/"
 $httpsrvlsnr = New-Object System.Net.HttpListener;
 
 $httpsrvlsnr.Prefixes.Add("http://"+$loip+":5000/");
 $httpsrvlsnr.Prefixes.Add("http://localhost:5000/");
 
 $httpsrvlsnr.Start();
+Write-Host "Setting folder root as $hpath `n"
+
 $webroot = New-PSDrive -Name webroot -PSProvider FileSystem -Root $PWD.Path
 [byte[]]$buffer = $null
-Write-Host "==== SESSION STARTED! ====" -ForegroundColor Green
-
-
+Write-Host "=========================================================================" -ForegroundColor Green
+Write-Host "========================   HTTP SERVER STARTED   ========================" -ForegroundColor Green
+Write-Host "=========================================================================" -ForegroundColor Green
+Write-Host ("Network Devices Can Reach the server at : http://"+$loip+":5000")
+Write-Host "`n"
 while ($httpsrvlsnr.IsListening) {
     try {
         $ctx = $httpsrvlsnr.GetContext();
@@ -141,14 +178,13 @@ while ($httpsrvlsnr.IsListening) {
                 $ctx.Response.ContentLength64 = $buffer.Length;
                 $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
             }
-        }
+        
        
 
     }
+    }
     catch [System.Net.HttpListenerException] {
         Write-Host ($_);
-    }
-}
-
-# <li><a href='/stop'>STOP SERVER</a></li>
+    }}
 Write-Host "Server Stopped!" -ForegroundColor Green
+Sleep 3
