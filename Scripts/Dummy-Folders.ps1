@@ -38,7 +38,7 @@ New-Item -ItemType Directory -Path $rootFolderName -Force | Out-Null
 
 # Create 20 subfolders
 for ($i = 1; $i -le 25; $i++) {
-    $subFolderName = Join-Path -Path $rootFolderName -ChildPath (Get-RandomName)
+    $subFolderName = Join-Path -Path $rootFolderName -ChildPath ((Get-RandomName) + (Get-RandomNumber))
     New-Item -ItemType Directory -Path $subFolderName -Force | Out-Null
 
     $fileCount = Get-Random -Minimum 20 -Maximum 100
