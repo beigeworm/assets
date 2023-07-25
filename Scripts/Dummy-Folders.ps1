@@ -1,5 +1,4 @@
 function Get-RandomName {
-    $numbers = 0..9999
     $adjectives = @(
         'Green', 'Happy', 'Small', 'Big', 'Fast', 'Slow', 'Smart', 'Clever', 'Bright', 'Dark',
         'Brave', 'Calm', 'Charming', 'Eager', 'Fierce', 'Gentle', 'Honest', 'Lucky', 'Proud', 'Shy',
@@ -16,15 +15,13 @@ function Get-RandomName {
         'Dinosaur', 'Unicorn', 'Mermaid', 'Superhero', 'Vampire', 'Werewolf', 'Ghost', 'Zombie', 'Witch', 'Fairy'
     )
 
-    $randomNumber = Get-Random -InputObject $numbers
-    sleep 1
-    $paddedNumber = '{0:d4}' -f $randomNumber
-    
+    $numbers = 0..9999
+
     $randomAdjective = Get-Random -InputObject $adjectives
-    sleep 1
     $randomNoun = Get-Random -InputObject $nouns
-    
-    return "$randomAdjective-$randomNoun-$paddedNumber"
+    $randomNumber = Get-Random -InputObject $numbers
+
+    return "$randomAdjective-$randomNoun_$('{0:D4}' -f $randomNumber)"
 }
 
 function Get-RandomFileExtension {
