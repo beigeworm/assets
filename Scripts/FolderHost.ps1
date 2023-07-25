@@ -31,7 +31,6 @@ Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 Write-Host "Checking User Permissions.."
-sleep 1
 
 $Button = [System.Windows.MessageBoxButton]::OKCancel
 $ErrorIco = [System.Windows.MessageBoxImage]::Information
@@ -49,7 +48,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     $Prompt = [System.Windows.MessageBox]::Show($Ask, "Run as an Admin?", $Button, $ErrorIco) 
     Switch ($Prompt) {
         OK {
-            Write-Host "This script will self elevate to run as an Administrator and continue."
+            Write-Host "This script will self elevate to run as an Administrator and continue." - ForegroundColor Green
             $fpath = $PWD.Path
             $fpath | Out-File -FilePath "$env:temp/homepath.txt"
             sleep 1
@@ -87,7 +86,6 @@ if ($primaryInterface) {
 Write-Host "Opening port 5000 on the local machine"
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 
-sleep 1
 Write-Host "Checking folder path.."
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd "$hpath"
