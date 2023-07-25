@@ -90,7 +90,7 @@ if ($primaryInterface) {
 
 Write-Host "Opening port 5000 on the local machine"
 Write-Host "Setup Complete! `n" -ForegroundColor Green
-Write-Host "========================== Server Details =============================="
+Write-Host "========================== Server Details =============================="  -ForegroundColor Green
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 
 Write-Host "Checking folder path.."
