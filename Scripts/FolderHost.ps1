@@ -27,7 +27,7 @@ Write-Host "            \/     \/  /_____/      \/                         \/   
 Write-Host "=========================================================================" -ForegroundColor Cyan -BackgroundColor Black
 Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan -BackgroundColor Black
 Write-Host "=========================================================================`n" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "Written by @beigeowrm (https://github.com/beigeworm)" -ForegroundColor Gray
+Write-Host "More info at : https://github.com/beigeworm" -ForegroundColor Gray
 Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
