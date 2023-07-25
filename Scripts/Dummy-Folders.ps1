@@ -17,12 +17,14 @@ function Get-RandomName {
     )
 
     $randomNumber = Get-Random -InputObject $numbers
+    sleep 1
     $paddedNumber = '{0:d4}' -f $randomNumber
     
     $randomAdjective = Get-Random -InputObject $adjectives
+    sleep 1
     $randomNoun = Get-Random -InputObject $nouns
     
-    return "$randomAdjective-$randomNoun_$paddedNumber"
+    return "$randomAdjective-$randomNoun-$paddedNumber"
 }
 
 function Get-RandomFileExtension {
