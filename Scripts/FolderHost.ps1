@@ -18,10 +18,16 @@ INSTRUCTIONS
 Run script and input given URL in a browser.
 
 #>
-Write-Host "=========================================================================" -ForegroundColor Cyan
-Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan
-Write-Host "=========================================================================`n" -ForegroundColor Cyan
-Write-Host "Written by @beigeowrm (https://github.com/beigeworm)" -ForegroundColor Grey
+Write-Host "       ___.          .__                                                 " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "       \_ |__   ____ |__| ____   ______  _  _____________  _____         " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "        | __ \_/ __ \|  |/ ___\_/ __ \ \/ \/ /  _ \_  __ \/     \        " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "        | \_\ \  ___/|  / /_/  >  ___/\     (  <_> )  | \/  Y Y  \       " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "        |___  /\___  >__\___  / \___  >\/\_/ \____/|__|  |__|_|  /       " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "            \/     \/  /_____/      \/                         \/        " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "=========================================================================" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "=========================================================================`n" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "Written by @beigeowrm (https://github.com/beigeworm)" -ForegroundColor Gray
 Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
