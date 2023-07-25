@@ -6,7 +6,6 @@ function Get-RandomName {
         'Handsome', 'Jolly', 'Kind', 'Nimble', 'Polite', 'Quirky', 'Silly', 'Thoughtful', 'Victorious', 'Witty',
         'Zesty', 'Bashful', 'Diligent', 'Joyful', 'Glamorous', 'Sincere', 'Modest', 'Optimistic', 'Glorious', 'Crazy'
     )
-
     $nouns = @(
         'Dog', 'Cat', 'Bird', 'Car', 'House', 'Tree', 'Book', 'Chair', 'Lamp', 'Table',
         'River', 'Mountain', 'Ocean', 'Star', 'Cloud', 'Rainbow', 'Moon', 'Sun', 'Bridge', 'Castle',
@@ -14,12 +13,8 @@ function Get-RandomName {
         'Robot', 'Dragon', 'Wizard', 'Ninja', 'Pirate', 'Knight', 'Princess', 'King', 'Queen', 'Alien',
         'Dinosaur', 'Unicorn', 'Mermaid', 'Superhero', 'Vampire', 'Werewolf', 'Ghost', 'Zombie', 'Witch', 'Fairy'
     )
-
-    $numbers = 0..9999
-
     $randomAdjective = Get-Random -InputObject $adjectives
     $randomNoun = Get-Random -InputObject $nouns
-    $randomNumber = Get-Random -InputObject $numbers
 
     return "$randomAdjective-$randomNoun"
 }
@@ -27,7 +22,7 @@ function Get-RandomName {
 Function Get-RandomNumber{
 $numbers = 0..9999
 $randomNumber = Get-Random -InputObject $numbers
-
+return "$randomNumber"
 }
 
 function Get-RandomFileExtension {
@@ -48,7 +43,7 @@ for ($i = 1; $i -le 25; $i++) {
 
     $fileCount = Get-Random -Minimum 20 -Maximum 100
     for ($j = 1; $j -le $fileCount; $j++) {
-        $fileName = Join-Path -Path $subFolderName -ChildPath ((Get-RandomName) + (Get-RandomFileExtension))
+        $fileName = Join-Path -Path $subFolderName -ChildPath ((Get-RandomName) + (Get-RandomNumber) + (Get-RandomFileExtension))
         New-Item -ItemType File -Path $fileName -Force | Out-Null
     }
 }
