@@ -20,7 +20,7 @@ function Get-RandomName {
     $randomNumber = Get-Random -Minimum 0 -Maximum 10000
     $paddedNumber = '{0:d4}' -f $randomNumber
 
-    return "$paddedNumber-$randomAdjective-$randomNoun"
+    return "$randomAdjective-$randomNoun $paddedNumber"
 }
 
 function Get-RandomFileExtension {
