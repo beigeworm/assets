@@ -1,4 +1,5 @@
 function Get-RandomName {
+    $numbers = 0..9999
     $adjectives = @(
         'Green', 'Happy', 'Small', 'Big', 'Fast', 'Slow', 'Smart', 'Clever', 'Bright', 'Dark',
         'Brave', 'Calm', 'Charming', 'Eager', 'Fierce', 'Gentle', 'Honest', 'Lucky', 'Proud', 'Shy',
@@ -15,11 +16,10 @@ function Get-RandomName {
         'Dinosaur', 'Unicorn', 'Mermaid', 'Superhero', 'Vampire', 'Werewolf', 'Ghost', 'Zombie', 'Witch', 'Fairy'
     )
 
-    $numbers = 0..9999
-
+    $randomNumber = Get-Random -InputObject $numbers
     $randomAdjective = Get-Random -InputObject $adjectives
     $randomNoun = Get-Random -InputObject $nouns
-    $randomNumber = Get-Random -InputObject $numbers
+    
 
     return "$('{0:D4}' -f $randomNumber)-$randomAdjective-$randomNoun"
 }
