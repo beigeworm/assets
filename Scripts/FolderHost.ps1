@@ -87,24 +87,22 @@ if ($primaryInterface) {
 } else {
     Write-Output "No primary internet connection found."
 }
-
+Write-Host "Server Started at : http://localhost:5000/"
 Write-Host "Opening port 5000 on the local machine"
 Write-Host "Setup Complete! `n" -ForegroundColor Green
 Write-Host "========================== Server Details =============================="  -ForegroundColor Green
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 
+Write-Host "=========================== Folder Setup ==============================="  -ForegroundColor Green
 Write-Host "Checking folder path.."
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd "$hpath"
-
-Write-Host "Server Starting at : http://localhost:5000/"
 $httpsrvlsnr = New-Object System.Net.HttpListener;
-
 $httpsrvlsnr.Prefixes.Add("http://"+$loip+":5000/");
 $httpsrvlsnr.Prefixes.Add("http://localhost:5000/");
 
 $httpsrvlsnr.Start();
-Write-Host "Setting folder root as $hpath `n"
+Write-Host "Setting folder root as : $hpath `n"
 
 $webroot = New-PSDrive -Name webroot -PSProvider FileSystem -Root $PWD.Path
 [byte[]]$buffer = $null
