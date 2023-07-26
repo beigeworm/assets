@@ -66,6 +66,15 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
         }
     }
 }
+else{
+        if (-Not (Test-Path -Path "$env:temp/homepath.txt")) {
+        $fpath = Read-Host "Input the local path for the folder you want to host "
+        $fpath | Out-File -FilePath "$env:temp/homepath.txt"
+        }
+        else{
+        break
+        }
+}
 
 Write-Host "Detecting primary network interface."
 $networkInterfaces = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -notmatch 'Virtual' }
@@ -87,6 +96,7 @@ if ($primaryInterface) {
 } else {
     Write-Output "No primary internet connection found."
 }
+
 Write-Host "Server Started at : http://localhost:5000/"
 Write-Host "Opening port 5000 on the local machine"
 Write-Host "Setup Complete! `n" -ForegroundColor Green
@@ -111,6 +121,9 @@ Write-Host "========================   HTTP SERVER STARTED   ===================
 Write-Host "=========================================================================" -ForegroundColor Green
 Write-Host ("Network Devices Can Reach the server at : http://"+$loip+":5000")
 Write-Host "`n"
+
+Remove-Item -Path "$env:temp/homepath.txt" -Force
+
 while ($httpsrvlsnr.IsListening) {
     try {
         $ctx = $httpsrvlsnr.GetContext();
