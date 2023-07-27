@@ -18,20 +18,21 @@ INSTRUCTIONS
 Run script and input given URL in a browser.
 
 #>
-Write-Host "       ___.          .__                                                 " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "       \_ |__   ____ |__| ____   ______  _  _____________  _____         " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "        | __ \_/ __ \|  |/ ___\_/ __ \ \/ \/ /  _ \_  __ \/     \        " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "        | \_\ \  ___/|  / /_/  >  ___/\     (  <_> )  | \/  Y Y  \       " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "        |___  /\___  >__\___  / \___  >\/\_/ \____/|__|  |__|_|  /       " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "            \/     \/  /_____/      \/                         \/        " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "=========================================================================" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "====================== Simple HTTP File Server ==========================" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "=========================================================================`n" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "=======================================================================================" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "██╗  ██╗████████╗████████╗██████╗     ███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "██║  ██║╚══██╔══╝╚══██╔══╝██╔══██╗    ██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "███████║   ██║      ██║   ██████╔╝    ███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "██╔══██║   ██║      ██║   ██╔═══╝     ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "██║  ██║   ██║      ██║   ██║         ███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝         ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "=======================================================================================" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "=======================================================================================`n" -ForegroundColor Cyan -BackgroundColor Black
 Write-Host "More info at : https://github.com/beigeworm" -ForegroundColor Gray
 Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
-Write-Host "============================ Server Setup ===============================" -ForegroundColor Green
+Write-Host "================================== Server Setup =======================================" -ForegroundColor Green
 
 Add-Type -AssemblyName PresentationCore,PresentationFramework
 Add-Type -AssemblyName System.Windows.Forms
@@ -99,10 +100,10 @@ if ($primaryInterface) {
 Write-Host "Server Started at : http://localhost:5000/"
 Write-Host "Opening port 5000 on the local machine"
 Write-Host "Setup Complete! `n" -ForegroundColor Green
-Write-Host "========================== Server Details =============================="  -ForegroundColor Green
+Write-Host "=================================== Server Details ===================================="  -ForegroundColor Green
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 
-Write-Host "=========================== Folder Setup ==============================="  -ForegroundColor Green
+Write-Host "===================================== Folder Setup ===================================="  -ForegroundColor Green
 Write-Host "Checking folder path.."
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd "$hpath"
@@ -115,9 +116,9 @@ Write-Host "Setting folder root as : $hpath `n"
 
 $webroot = New-PSDrive -Name webroot -PSProvider FileSystem -Root $PWD.Path
 [byte[]]$buffer = $null
-Write-Host "=========================================================================" -ForegroundColor Green
-Write-Host "========================   HTTP SERVER STARTED   ========================" -ForegroundColor Green
-Write-Host "=========================================================================" -ForegroundColor Green
+Write-Host "=======================================================================================" -ForegroundColor Green
+Write-Host "==============================   HTTP SERVER STARTED   ================================" -ForegroundColor Green
+Write-Host "=======================================================================================" -ForegroundColor Green
 Write-Host ("Network Devices Can Reach the server at : http://"+$loip+":5000")
 Write-Host "`n"
 
@@ -221,3 +222,4 @@ while ($httpsrvlsnr.IsListening) {
     }}
 Write-Host "Server Stopped!" -ForegroundColor Green
 Sleep 3
+
