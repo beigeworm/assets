@@ -155,7 +155,7 @@ while ($httpsrvlsnr.IsListening){try {$ctx = $httpsrvlsnr.GetContext();
         Remove-PSDrive -Name webroot -PSProvider FileSystem;
     }
         elseif ($ctx.Request.RawUrl -match "^/download/.+") {
-            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl.Replace('%20', ' ') -replace "^/browse", "")
+            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl.Replace('%20', ' ') -replace "^/download", "")
             if ([System.IO.File]::Exists($filePath)) {
                 $fileInfo = Get-Item -Path $filePath
                 $ctx.Response.ContentType = 'application/octet-stream'
