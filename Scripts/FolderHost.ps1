@@ -1,36 +1,16 @@
-﻿<#
-============================== Beigeworm's HTTP File Server ===============================
-
-SYNOPSIS
-This script serves the contents the folder it is ran in.
-
-INSTRUCTIONS
-Run script and input given URL in a browser.
-
-#>
-<#
-============================== Beigeworm's HTTP File Server ===============================
-
-SYNOPSIS
-This script serves the contents the folder it is ran in.
-
-INSTRUCTIONS
-Run script and input given URL in a browser.
-
-#>
 #============================================================ OPEN MESSAGE ====================================================================
 
-Write-Host "=======================================================================================" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "██╗  ██╗████████╗████████╗██████╗     ███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ " -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "██║  ██║╚══██╔══╝╚══██╔══╝██╔══██╗    ██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "███████║   ██║      ██║   ██████╔╝    ███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "██╔══██║   ██║      ██║   ██╔═══╝     ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "██║  ██║   ██║      ██║   ██║         ███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝         ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "=======================================================================================" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "=======================================================================================`n" -ForegroundColor Cyan -BackgroundColor Black
-Write-Host "More info at : https://github.com/beigeworm" -ForegroundColor Gray
+Write-Host "=======================================================================================" -ForegroundColor Green -BackgroundColor Black
+Write-Host "██╗  ██╗████████╗████████╗██████╗     ███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ " -ForegroundColor Green -BackgroundColor Black
+Write-Host "██║  ██║╚══██╔══╝╚══██╔══╝██╔══██╗    ██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗" -ForegroundColor Green -BackgroundColor Black
+Write-Host "███████║   ██║      ██║   ██████╔╝    ███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝" -ForegroundColor Green -BackgroundColor Black
+Write-Host "██╔══██║   ██║      ██║   ██╔═══╝     ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗" -ForegroundColor Green -BackgroundColor Black
+Write-Host "██║  ██║   ██║      ██║   ██║         ███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║" -ForegroundColor Green -BackgroundColor Black
+Write-Host "╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝         ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝" -ForegroundColor Green -BackgroundColor Black
+Write-Host "=======================================================================================" -ForegroundColor Green -BackgroundColor Black
+Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Green -BackgroundColor Black
+Write-Host "=======================================================================================`n" -ForegroundColor Green -BackgroundColor Black
+Write-Host "More info at : https://github.com/beigeworm" -ForegroundColor DarkGray
 Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
 sleep 1
 
@@ -43,7 +23,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 #============================================================ USER PERMISSIONS ====================================================================
 
-Write-Host "Checking User Permissions.."
+Write-Host "Checking User Permissions.." -ForegroundColor DarkGray
 $Button = [System.Windows.MessageBoxButton]::OKCancel
 $ErrorIco = [System.Windows.MessageBoxImage]::Information
 $Ask = '        This Script Needs Administrator Privileges.
@@ -76,7 +56,7 @@ else{if (-Not (Test-Path -Path "$env:temp/homepath.txt")){
 
 #============================================================ DETECT NETWORK HARDWARE ====================================================================
 
-Write-Host "Detecting primary network interface."
+Write-Host "Detecting primary network interface." -ForegroundColor DarkGray
 $networkInterfaces = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -notmatch 'Virtual' }
 $filteredInterfaces = $networkInterfaces | Where-Object { $_.Name -match 'Wi*' -or  $_.Name -match 'Eth*'}
 $primaryInterface = $filteredInterfaces | Select-Object -First 1
@@ -96,12 +76,12 @@ if ($primaryInterface) {
 #============================================================ OPEN PORT 5000 ON WINDOWS ====================================================================
 
 Write-Host "Server Started at : http://localhost:5000/"
-Write-Host "Opening port 5000 on the local machine"
+Write-Host "Opening port 5000 on the local machine" -ForegroundColor DarkGray
 Write-Host "Setup Complete! `n" -ForegroundColor Green
 Write-Host "=================================== Server Details ===================================="  -ForegroundColor Green
 New-NetFirewallRule -DisplayName "AllowWebServer" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
 Write-Host "===================================== Folder Setup ===================================="  -ForegroundColor Green
-Write-Host "Checking folder path.."
+Write-Host "Checking folder path.." -ForegroundColor DarkGray
 $hpath = Get-Content -Path "$env:temp/homepath.txt"
 cd "$hpath"
 $httpsrvlsnr = New-Object System.Net.HttpListener;
@@ -110,97 +90,104 @@ $httpsrvlsnr.Prefixes.Add("http://localhost:5000/");
 $httpsrvlsnr.Start();
 
 #============================================================ SET PATH TO GIVEN FOLDER ====================================================================
-
-Write-Host "Setting folder root as : $hpath `n"
+Write-Host "Setting folder root as : $hpath `n" 
 $webroot = New-PSDrive -Name webroot -PSProvider FileSystem -Root $PWD.Path
 [byte[]]$buffer = $null
 Write-Host "=======================================================================================" -ForegroundColor Green
 Write-Host "==============================   HTTP SERVER STARTED   ================================" -ForegroundColor Green
-Write-Host "=======================================================================================" -ForegroundColor Green
+Write-Host "=======================================================================================`n" -ForegroundColor Green
 Write-Host ("Network Devices Can Reach the server at : http://"+$loip+":5000")
 Write-Host "`n"
 Remove-Item -Path "$env:temp/homepath.txt" -Force
-
-
 #============================================================ SERVE WEBPAGE TO URL ====================================================================
-
-
-while ($httpsrvlsnr.IsListening) {
-    try {$ctx = $httpsrvlsnr.GetContext();
-        if ($ctx.Request.RawUrl -eq "/") {
-            $html = "<html><head><style>"
-            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
-            $html += "h1 { color: #FFF; }"
-            $html += "a { color: #007BFF; text-decoration: none; }"
-            $html += "a:hover { text-decoration: underline; }"
-            $html += "ul { list-style-type: none; padding-left: 0; }"
-            $html += "li { margin-bottom: 5px; }"
-            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
-            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
-            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
-            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
-            $html += "</style></head><body>"
-            $html += "<h1>File Listing</h1><ul>"
-            $files = Get-ChildItem -Path $PWD.Path -Force
-            foreach ($file in $files) {
-                $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
-                if ($file.PSIsContainer) {
-                    $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
-                } else {
-                    $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
-                }}
-            $html += "</ul><hr>"
-            $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr>"
-            $html += "</body></html>"
-            $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
-            $ctx.Response.ContentLength64 = $buffer.Length;
-            $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+function Format-FileSize {
+    param([long]$Size)
+    $Units = "bytes", "Kb", "Mb", "Gb"
+    $Index = 0
+    while ($Size -ge 1024 -and $Index -lt 4) {
+        $Size = $Size / 1024
+        $Index++
+    }
+    "{0:N2} {1}" -f $Size, $Units[$Index]
+}
+Function DisplayWebpage {
+    $html = "<html><head><style>"
+    $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #7c7d71; }"
+    $html += "h1 { color: #000; }"
+    $html += "a { color: #000; text-decoration: none; font-size: 20px; padding-left: 10px; }"
+    $html += "a:hover { text-decoration: underline; }"
+    $html += "table { border-collapse: collapse; width: 100%; border: 1px solid #ddd; }"
+    $html += "th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }"
+    $html += "tr:hover { background-color: #909090; }"
+    $html += "thead { background-color: #909090; }"
+    $html += "ul { list-style-type: none; padding-left: 0; }"
+    $html += "li { margin-bottom: 5px; }"
+    $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
+    $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+    $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+    $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
+    $html += "</style></head><body>"
+    $folderPath = $PWD.Path
+    $html += "<h3> HTTP Server - Root Folder Path : $folderPath </h3><ul>"
+    $html += "<ul><table>"
+    $html += "<thead><tr><th> FOLDERS</th></tr></thead><tbody>"
+    foreach ($file in $files) {
+        $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+        $fileDetails = "<td>$(Format-FileSize $file.Length)</td><td>$($file.Extension)</td><td>$($file.CreationTime)</td><td>$($file.LastWriteTime)</td>"
+        if ($file.PSIsContainer) {
+            $html += "<tr><td><a href='/browse$fileUrl'><button>Open Folder</button></a><a>$file</a></td></tr>"
         }
-        elseif ($ctx.Request.RawUrl -eq "/stop") {
-            $httpsrvlsnr.Stop();
-            Remove-PSDrive -Name webroot -PSProvider FileSystem;
-        }
-        elseif ($ctx.Request.RawUrl -match "^/download/.+") {
-            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/download", "")
-            if ([System.IO.File]::Exists($filePath)) {
-                $ctx.Response.ContentType = 'application/octet-stream'
-                $ctx.Response.ContentLength64 = (Get-Item -Path $filePath).Length
-                $fileStream = [System.IO.File]::OpenRead($filePath)
-                $fileStream.CopyTo($ctx.Response.OutputStream)
-                $ctx.Response.OutputStream.Flush()
-                $ctx.Response.Close()
-                $fileStream.Close()
-            }}
-        elseif ($ctx.Request.RawUrl -match "^/browse/.+") {
-            $folderPath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/browse", "")
-            if ([System.IO.Directory]::Exists($folderPath)) {
-            $html = "<html><head><style>"
-            $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #6a3278; }"
-            $html += "h1 { color: #FFF; }"
-            $html += "a { color: #007BFF; text-decoration: none; }"
-            $html += "a:hover { text-decoration: underline; }"
-            $html += "ul { list-style-type: none; padding-left: 0; }"
-            $html += "li { margin-bottom: 5px; }"
-            $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
-            $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
-            $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
-            $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
-            $html += "</style></head><body>"
-            $html += "<h3>Contents of $folderPath</h3><ul>"
-            $files = Get-ChildItem -Path $folderPath -Force
-            foreach ($file in $files) {
-                $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
-                if ($file.PSIsContainer) {
-                    $html += "<li><a href='/browse$fileUrl'><button>Open Folder</button></a><a> $file</a></li>"
-                } else {
-                        $html += "<li><a href='/download$fileUrl'><button>Download</button></a><a> $file</a></li>"
-                }
-            }
-            $html += "</ul></body></html>"
-            $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
-            $ctx.Response.ContentLength64 = $buffer.Length;
-            $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
-        }}}catch [System.Net.HttpListenerException] {Write-Host ($_);}}
+        else{
+        }}
+    $html += "</tbody></table><hr>"
+    $html += "<ul><table>"
+    $html += "<thead><tr><th> FILES</th><th>Size</th><th>Type</th><th>Created</th><th>Last Modified</th></tr></thead><tbody>"
+    foreach ($file in $files) {
+        $fileUrl = $file.FullName -replace [regex]::Escape($PWD.Path), ''
+        $fileDetails = "<td>$(Format-FileSize $file.Length)</td><td>$($file.Extension)</td><td>$($file.CreationTime)</td><td>$($file.LastWriteTime)</td>"
+        if ($file.PSIsContainer){} 
+        else {
+            $html += "<tr><td><a href='/download$fileUrl'><button>Download</button></a><a>$file</a></td>$fileDetails</tr>"
+        }}
+    $html += "</tbody></table><hr>"
+    $html += "</ul><hr>"
+    $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr>"
+    $html += "</body></html>"
+}
+
+while ($httpsrvlsnr.IsListening){try {$ctx = $httpsrvlsnr.GetContext();
+
+    if ($ctx.Request.RawUrl -eq "/") {
+        $files = Get-ChildItem -Path $PWD.Path -Force
+        DisplayWebpage
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+        $ctx.Response.ContentLength64 = $buffer.Length;
+        $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+    }
+    elseif ($ctx.Request.RawUrl -eq "/stop") {
+        $httpsrvlsnr.Stop();
+        Remove-PSDrive -Name webroot -PSProvider FileSystem;
+    }
+    elseif ($ctx.Request.RawUrl -match "^/download/.+") {
+        $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/download", "")
+        if ([System.IO.File]::Exists($filePath)) {
+        $ctx.Response.ContentType = 'application/octet-stream'
+        $ctx.Response.ContentLength64 = (Get-Item -Path $filePath).Length
+        $fileStream = [System.IO.File]::OpenRead($filePath)
+        $fileStream.CopyTo($ctx.Response.OutputStream)
+        $ctx.Response.OutputStream.Flush()
+        $ctx.Response.Close()
+        $fileStream.Close()
+        }}
+    elseif ($ctx.Request.RawUrl -match "^/browse/.+") {
+        $folderPath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl -replace "^/browse", "")
+        if ([System.IO.Directory]::Exists($folderPath)) {
+        $files = Get-ChildItem -Path $folderPath -Force
+        DisplayWebpage
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+        $ctx.Response.ContentLength64 = $buffer.Length;
+        $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
+    }}}catch [System.Net.HttpListenerException] {Write-Host ($_);}}
 
 
 #============================================================ CLOSING MESSAGE ====================================================================
@@ -208,4 +195,3 @@ while ($httpsrvlsnr.IsListening) {
 
 Write-Host "Server Stopped!" -ForegroundColor Green
 Sleep 3
-
