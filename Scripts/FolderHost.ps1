@@ -24,35 +24,24 @@ Add-Type -AssemblyName System.Windows.Forms
 #============================================================ USER PERMISSIONS ====================================================================
 
 Write-Host "Checking User Permissions.." -ForegroundColor DarkGray
-$Button = [System.Windows.MessageBoxButton]::OKCancel
-$ErrorIco = [System.Windows.MessageBoxImage]::Information
-$Ask = '        This Script Needs Administrator Privileges.
 
-        Select "OK" to Run as an Administrator
-        
-        Select "Cancel" to Stop the Script'
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
     Write-Host "Admin privileges needed for this script..." -ForegroundColor Red
-    Write-Host "Sending User Prompt."
-    $Prompt = [System.Windows.MessageBox]::Show($Ask, "Run as an Admin?", $Button, $ErrorIco) 
-    Switch ($Prompt) {
-        OK{Write-Host "This script will self elevate to run as an Administrator and continue." -ForegroundColor Green
-           $fpath = $PWD.Path
-           $fpath | Out-File -FilePath "$env:temp/homepath.txt"
-           sleep 1
-           Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
-           Exit}
-        Cancel{Write-Host "Cancelling...." -ForegroundColor Red;Exit}}}
-
-
-#============================================================ DETECT FOLDER LOCATION ====================================================================
-
-else{if (-Not (Test-Path -Path "$env:temp/homepath.txt")){
+    Write-Host "This script will self elevate to run as an Administrator and continue." -ForegroundColor DarkGray
+    Write-Host "Sending User Prompt."  -ForegroundColor Green
+    $fpath = $PWD.Path
+    $fpath | Out-File -FilePath "$env:temp/homepath.txt" -Force
+    sleep 1
+    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
+    exit
+    }
+    else{
+    sleep 1
+    if (-Not (Test-Path -Path "$env:temp/homepath.txt")){
     $fpath = Read-Host "Input the local path for the folder you want to host "
     $fpath | Out-File -FilePath "$env:temp/homepath.txt"
     }
-    else{}}
-
+    }
 
 #============================================================ DETECT NETWORK HARDWARE ====================================================================
 
@@ -114,7 +103,8 @@ Function DisplayWebpage {
     $html = "<html><head><style>"
     $html += "body { font-family: Arial, sans-serif; margin: 30px; background-color: #7c7d71; }"
     $html += "h1 { color: #000; }"
-    $html += "a { color: #000; text-decoration: none; font-size: 20px; padding-left: 10px; }"
+    $html += ".container { display: flex; align-items: center; }"
+    $html += "a { color: #000; text-decoration: none; font-size: 16px; padding-left: 10px; }"
     $html += "a:hover { text-decoration: underline; }"
     $html += "table { border-collapse: collapse; width: 100%; border: 1px solid #ddd; }"
     $html += "th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }"
@@ -122,13 +112,14 @@ Function DisplayWebpage {
     $html += "thead { background-color: #909090; }"
     $html += "ul { list-style-type: none; padding-left: 0; }"
     $html += "li { margin-bottom: 5px; }"
-    $html += "textarea { width: 100%; padding: 10px; font-size: 14px; }"
-    $html += "input[type='submit'] { margin-top: 10px; padding: 5px 10px; background-color: #40ad24; color: #FFF; border: none; border-radius: 4px; cursor: pointer; }"
+    $html += "textarea { width: 80%; padding: 10px; font-size: 14px; }"
+    $html += "input[type='submit'] { position: relative; top: -15px; margin-left: 30px; padding: 10px 20px; background-color: #cf2b2b; color: #FFF; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }"
     $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
+    $html += ".stop-button { position: relative; top: -5px; font-size: 18px; margin-left: 30px; background-color: #cf2b2b; color: #FFF; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }"
     $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
     $html += "</style></head><body>"
-    $folderPath = $PWD.Path
-    $html += "<h3> HTTP Server - Root Folder Path : $folderPath </h3><ul>"
+    $html += "<div class='container'><h1> Simple HTTP Server</h1><a href='/stop'><button class='stop-button'>STOP SERVER</button></a></div><ul>"
+    $html += "<h3> Root Folder Path : $folderPath </h3><ul>"
     $html += "<ul><table>"
     $html += "<thead><tr><th> FOLDERS</th></tr></thead><tbody>"
     foreach ($file in $files) {
@@ -139,7 +130,7 @@ Function DisplayWebpage {
         }
         else{
         }}
-    $html += "</tbody></table><hr>"
+    $html += "</tbody></table>"
     $html += "<ul><table>"
     $html += "<thead><tr><th> FILES</th><th>Size</th><th>Type</th><th>Created</th><th>Last Modified</th></tr></thead><tbody>"
     foreach ($file in $files) {
@@ -149,20 +140,20 @@ Function DisplayWebpage {
         else {
             $html += "<tr><td><a href='/download$fileUrl'><button>Download</button></a><a>$file</a></td>$fileDetails</tr>"
         }}
-    $html += "</tbody></table><hr>"
-    $html += "</ul><hr>"
-    $html += "<h1>Stop the Server </h1><a href='/stop'><button>STOP SERVER</button></a><hr>"
+    $html += "</tbody></table>"
+    $html += "</ul>"
     $html += "</body></html>"
+    $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
+    $ctx.Response.ContentLength64 = $buffer.Length;
+    $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
 }
 
 while ($httpsrvlsnr.IsListening){try {$ctx = $httpsrvlsnr.GetContext();
 
     if ($ctx.Request.RawUrl -eq "/") {
         $files = Get-ChildItem -Path $PWD.Path -Force
+        $folderPath = $PWD.Path
         DisplayWebpage
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
-        $ctx.Response.ContentLength64 = $buffer.Length;
-        $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
     }
     elseif ($ctx.Request.RawUrl -eq "/stop") {
         $httpsrvlsnr.Stop();
@@ -184,14 +175,11 @@ while ($httpsrvlsnr.IsListening){try {$ctx = $httpsrvlsnr.GetContext();
         if ([System.IO.Directory]::Exists($folderPath)) {
         $files = Get-ChildItem -Path $folderPath -Force
         DisplayWebpage
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html);
-        $ctx.Response.ContentLength64 = $buffer.Length;
-        $ctx.Response.OutputStream.WriteAsync($buffer, 0, $buffer.Length)
-    }}}catch [System.Net.HttpListenerException] {Write-Host ($_);}}
-
+    }}
+    
+    }catch [System.Net.HttpListenerException] {Write-Host ($_);}}
 
 #============================================================ CLOSING MESSAGE ====================================================================
 
-
 Write-Host "Server Stopped!" -ForegroundColor Green
-Sleep 3
+Sleep 1
