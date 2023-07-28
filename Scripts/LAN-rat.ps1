@@ -196,16 +196,28 @@ while ($httpsrvlsnr.IsListening){try {$ctx = $httpsrvlsnr.GetContext();
         Remove-PSDrive -Name webroot -PSProvider FileSystem;
     }
     elseif ($ctx.Request.RawUrl -match "^/download/.+") {
-        $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl.Replace('%20', ' ') -replace "^/download", "")
-        if ([System.IO.File]::Exists($filePath)) {
-        $ctx.Response.ContentType = 'application/octet-stream'
-        $ctx.Response.ContentLength64 = (Get-Item -Path $filePath).Length
-        $fileStream = [System.IO.File]::OpenRead($filePath)
-        $fileStream.CopyTo($ctx.Response.OutputStream)
-        $ctx.Response.OutputStream.Flush()
-        $ctx.Response.Close()
-        $fileStream.Close()
-        }}
+            $filePath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl.Replace('%20', ' ') -replace "^/download", "")
+            if ([System.IO.File]::Exists($filePath)) {
+                $fileInfo = Get-Item -Path $filePath
+                $ctx.Response.ContentType = 'application/octet-stream'
+                $ctx.Response.ContentLength64 = $fileInfo.Length
+                $fileStream = [System.IO.File]::OpenRead($filePath)
+                $buffer = New-Object byte[] 4096
+                $totalBytesRead = 0
+                while ($totalBytesRead -lt $fileInfo.Length) {
+                    $bytesRead = $fileStream.Read($buffer, 0, $buffer.Length)
+                    $ctx.Response.OutputStream.Write($buffer, 0, $bytesRead)
+                    $ctx.Response.OutputStream.Flush()
+                    $totalBytesRead += $bytesRead
+                    $progressPercentage = [Math]::Round(($totalBytesRead / $fileInfo.Length) * 100, 0)
+                    Write-Progress -Activity "Downloading $($fileInfo.Name)" -Status "$progressPercentage% Complete" -PercentComplete $progressPercentage
+                    if ($totalBytesRead -eq $fileInfo.Length) {
+                        Write-Progress -Activity "Downloading $($fileInfo.Name)" -Completed
+                    }}
+                Write-Host "A User Downloaded : $filePath" -ForegroundColor Green
+                $ctx.Response.OutputStream.Close()
+                $fileStream.Close()
+            }}
     elseif ($ctx.Request.RawUrl -match "^/browse/.+") {
         $folderPath = Join-Path -Path $PWD.Path -ChildPath ($ctx.Request.RawUrl.Replace('%20', ' ') -replace "^/browse", "")
         if ([System.IO.Directory]::Exists($folderPath)) {
