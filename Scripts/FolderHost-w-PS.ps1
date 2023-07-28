@@ -107,7 +107,7 @@ Function DisplayWebpage {
     $html += "ul { list-style-type: none; padding-left: 0; }"
     $html += "li { margin-bottom: 5px; }"
     $html += "textarea { width: 80%; padding: 10px; font-size: 14px; }"
-    $html += "input[type='submit'] { position: relative; top: -10px; margin-left: 30px; padding: 10px 20px; background-color: #cf2b2b; color: #FFF; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }"
+    $html += "input[type='submit'] { position: relative; top: -12px; margin-left: 30px; padding: 10px 20px; background-color: #cf2b2b; color: #FFF; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }"
     $html += "button { background-color: #40ad24; color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }"
     $html += ".stop-button { position: relative; top: -5px; font-size: 18px; margin-left: 30px; background-color: #cf2b2b; color: #FFF; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }"
     $html += "pre { background-color: #f7f7f7; padding: 10px; border-radius: 4px; }"
