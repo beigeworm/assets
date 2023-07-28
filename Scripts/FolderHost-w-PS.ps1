@@ -1,5 +1,6 @@
 #============================================================ OPEN MESSAGE ====================================================================
-
+$Host.UI.RawUI.BackgroundColor = "Black"
+Clear-Host
 Write-Host "=======================================================================================" -ForegroundColor Green -BackgroundColor Black
 Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Green -BackgroundColor Black
 Write-Host "=======================================================================================`n" -ForegroundColor Green -BackgroundColor Black
