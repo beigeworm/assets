@@ -4,6 +4,8 @@ Clear-Host
 $width = 88
 $height = 30
 [Console]::SetWindowSize($width, $height)
+$windowTitle = "HTTP File Server"
+[Console]::SetTitle($windowTitle)
 Write-Host "=======================================================================================" -ForegroundColor Green -BackgroundColor Black
 Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Green -BackgroundColor Black
 Write-Host "=======================================================================================`n" -ForegroundColor Green -BackgroundColor Black
