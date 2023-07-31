@@ -96,9 +96,6 @@ Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
 $edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a -WindowStyle Maximized" -PassThru
-Sleep -Milliseconds 1000
-$black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
-
 $edgeProcess.WaitForInputIdle()
 
 Add-Type @"
@@ -118,4 +115,5 @@ Add-Type @"
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
 Sleep -Milliseconds 250
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
-Sleep -Milliseconds 250
+Sleep -Milliseconds 750
+$black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
