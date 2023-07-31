@@ -87,7 +87,10 @@ Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNe
 sleep 1
 
 # START EDGE IN FULLSCREEN
-Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a" -WindowStyle Maximized
+$edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a" -WindowStyle Maximized
 sleep -Milliseconds 400
 Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
+$edgeProcess.WaitForExit()
+sleep 2
+Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNewWindow -Wait
 
