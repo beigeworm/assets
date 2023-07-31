@@ -96,7 +96,6 @@ Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
 $edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a -WindowStyle Maximized" -PassThru
-Sleep -Milliseconds 500
 $black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
 
 $edgeProcess.WaitForInputIdle()
