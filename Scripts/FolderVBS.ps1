@@ -4,19 +4,6 @@ Clear-Host
 $width = 88
 $height = 30
 [Console]::SetWindowSize($width, $height)
-Write-Host "=======================================================================================" -ForegroundColor Green -BackgroundColor Black
-Write-Host "============================= Simple HTTP File Server =================================" -ForegroundColor Green -BackgroundColor Black
-Write-Host "=======================================================================================`n" -ForegroundColor Green -BackgroundColor Black
-Write-Host "More info at : https://github.com/beigeworm" -ForegroundColor DarkGray
-Write-Host "This script will start a HTTP fileserver with the contents of this folder.`n"
-sleep 1
-
-#============================================================ SERVER SETUP ====================================================================
-
-Write-Host "================================== Server Setup =======================================" -ForegroundColor Green
-Add-Type -AssemblyName PresentationCore,PresentationFramework
-Add-Type -AssemblyName System.Windows.Forms
-[System.Windows.Forms.Application]::EnableVisualStyles()
 
 #============================================================ USER PERMISSIONS ====================================================================
 
@@ -29,7 +16,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     $fpath = $PWD.Path
     $fpath | Out-File -FilePath "$env:temp/homepath.txt" -Force
     sleep 1
-    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -C irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/FolderHost.ps1 | iex") -Verb RunAs
+    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -C irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/FolderHost-w-PS.ps1 | iex") -Verb RunAs
     exit
     }
     else{
