@@ -16,7 +16,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     $fpath = $PWD.Path
     $fpath | Out-File -FilePath "$env:temp/homepath.txt" -Force
     sleep 1
-    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -C irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/FolderHost-w-PS.ps1 | iex") -Verb RunAs
+    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -C irm https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/FolderHost.ps1 | iex") -Verb RunAs
     exit
     }
     else{
