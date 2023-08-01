@@ -17,7 +17,7 @@ Kudos for creating this great look-a-like!
 #>
 
 # GATHER SYSTEM AND USER INFO
-#$u = GPRESULT /R /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches
+$u = GPRESULT /R /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches
 $c = $env:COMPUTERNAME
 $u = ("$u").Trim()
 
