@@ -1,3 +1,8 @@
+# GATHER SYSTEM AND USER INFO
+$u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
+$c = $env:COMPUTERNAME
+$wpURL = "https://wallpapercave.com/wp/wp9378862.jpg"
+
 # DEFAULT LOGIN METHOD
 $value = Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\NgcPin" -Name "DeviceLockEnforcementPending" -ErrorAction SilentlyContinue
 if ($value -eq 0 -or $value -eq 1) {
