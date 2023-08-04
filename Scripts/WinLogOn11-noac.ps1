@@ -1,9 +1,4 @@
-
-# GATHER SYSTEM AND USER INFO
-$u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
-$c = $env:COMPUTERNAME
-$wpURL = "https://wallpapercave.com/wp/wp9378862.jpg"
-
+# DEFAULT LOGIN METHOD
 $value = Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\NgcPin" -Name "DeviceLockEnforcementPending" -ErrorAction SilentlyContinue
 if ($value -eq 0 -or $value -eq 1) {
     $mthd = "PIN"
@@ -11,8 +6,8 @@ if ($value -eq 0 -or $value -eq 1) {
     $mthd = "Password"
 }
 
-$accountPicturesPath = "C:\Users\Public\AccountPictures"
-
+# FIND ACCOUNT PICTURES
+$accountPicturesPath = "C:\ProgramData\Microsoft\Default Account Pictures"
 $imageFiles = Get-ChildItem -Path $accountPicturesPath -Filter *.jpg, *.png, *.bmp -File -Recurse
 if ($imageFiles.Count -gt 0) {
 $firstImage = $imageFiles[0].FullName
@@ -20,6 +15,7 @@ $image = [System.Drawing.Image]::FromFile($firstImage)
 $usrimg = "$image"
 }else {$usrimg = "https://www.tenforums.com/geek/gars/images/2/types/thumb_14400082930User.png"}
 
+# HTML FOR COVER PAGE
 $h = @"
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>&#65279;</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"><link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&display=swap" rel="stylesheet"><style>@import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap);body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}#container{height:100vh;width:100vw;overflow:hidden;position:relative}#wallpaper{background-image:url($wpURL);background-repeat:no-repeat;background-size:100% cover;background-position:center;height:100vh;width:100vw;position:absolute;top:0;left:0}#wallpaper.slideUp{transition:all .6s ease;transform:translateY(-100%)}#wallpaper.slideDown{transition:all .6s linear;transform:translateY(0)}.icons{display:flex;justify-content:flex-start;align-items:center;padding-left:.5em}.icons i{color:#fff;margin-top:.7em;margin-right:2em}#date_cont{text-align:center;position:absolute;top:20%;left:42%;animation:slideInFast .3s .3s linear forwards;visibility:hidden;transform:translateY(150%);transition:all .6s ease both}@keyframes slideInFast{from{visibility:hidden;opacity:0;transform:translateY(100%)}to{visibility:visible;opacity:1;transform:translateY(0)}}#time{font-size:7.5em;font-family:'Open Sans',sans-serif;color:#fff;margin:0;margin-left:-15px;padding:0}#date{font-size:2em;font-family:'Open Sans',sans-serif;color:#fff;margin-top:-.6em}</style></head><body><div id="container"><div id="wallpaper"><div id="date_cont"><div id="time">08:20</div><div id="date" class="">Tuesday, October 8</div><div class="icons"><i class="fa fa-wifi"></i><i class="fa fa-battery-full"></i></div></div></div></div><script type="text/javascript">(function(){ 
   var time = document.querySelector('#time');
@@ -74,6 +70,7 @@ $h = @"
 })();</script></body></html>
 "@
 
+# HTML FOR LOGIN PAGE
 $h2 = @"
 <!DOCTYPE html>
 <html>
@@ -89,7 +86,6 @@ $h2 = @"
     width: 100vw;
     position: relative;
   }
-
   body {
     background: url($wpURL);
     background-repeat: no-repeat;
@@ -102,7 +98,6 @@ $h2 = @"
     top: 0;
     left: 0
   }
-    /* Center the input box and button container */
     .center-container {
       position: absolute;
       top: 50%;
@@ -110,7 +105,6 @@ $h2 = @"
       transform: translate(-50%, -50%);
       text-align: center;
     }
-
     .input-box {
       width: 300px;
       height: 35px;
@@ -128,16 +122,12 @@ $h2 = @"
     border-bottom: rgba(64, 64, 64, 0.3);
     border: 1px solid #e6e6e6;
     }
-
-    /* Style the container for input box and button */
     .input-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px; /* Gap between input box and button */
+      gap: 20px;
     }
-
-    /* Style the "Sign In" button */
     .btn-signin {
       width: 140px;
       height: 40px;
@@ -160,12 +150,12 @@ $h2 = @"
       color: white;
     }
     .circular-image {
-    width: 180px; /* Set width relative to viewport width */
-    height: 180px; /* Set height relative to viewport width */
-    border-radius: 50%; /* Make it circular */
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
     border: 2px solid #e6e6e6;
     margin-bottom: 10px;
-}
+    }
 </style>
   </head>
 <body class="text-nowrap" style="width:100%;height:100vh">
@@ -223,7 +213,7 @@ $h2 | Out-File -Encoding UTF8 -FilePath $p2
 
 # KILL ANY BROWSERS (interfere with "Maximazed" argument)
 Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe", "/IM", "msedge.exe" -NoNewWindow -Wait
-Sleep -Milliseconds 250
+Sleep -Milliseconds 100
 
 # START EDGE IN FULLSCREEN
 $edgeProcess = Start-Process -FilePath "msedge.exe" -ArgumentList "--kiosk --app=$a -WindowStyle Maximized" -PassThru
@@ -247,6 +237,5 @@ Add-Type @"
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
 Sleep -Milliseconds 250
 $null = [Win32]::SetWindowPos($edgeProcess.MainWindowHandle, [Win32]::HWND_TOPMOST, 0, 0, 0, 0, [Win32]::SWP_NOMOVE -bor [Win32]::SWP_NOSIZE -bor [Win32]::SWP_SHOWWINDOW)
-Sleep -Milliseconds 750
+Sleep -Milliseconds 250
 $black = Start-Process -FilePath "C:\Windows\System32\scrnsave.scr"
-
