@@ -5,15 +5,11 @@ $wpURL = "https://wallpapercave.com/wp/wp9378862.jpg"
 
 # DEFAULT LOGIN METHOD
 $value = Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\NgcPin" -Name "DeviceLockEnforcementPending" -ErrorAction SilentlyContinue
-if ($value -eq 0 -or $value -eq 1) {
-    $mthd = "PIN"
-} else {
-    $mthd = "Password"
-}
+if ($value -eq 0 -or $value -eq 1) {$mthd = "PIN"} else {$mthd = "Password"}
 
 # FIND ACCOUNT PICTURES
 $accountPicturesPath = "C:\ProgramData\Microsoft\Default Account Pictures"
-$imageFiles = Get-ChildItem -Path $accountPicturesPath -Filter *.jpg, *.png, *.bmp -File -Recurse
+$imageFiles = Get-ChildItem -Path $accountPicturesPath -include "*.jpg", "*.png", "*.bmp" -File -Recurse
 if ($imageFiles.Count -gt 0) {
 $firstImage = $imageFiles[0].FullName
 $image = [System.Drawing.Image]::FromFile($firstImage)
@@ -34,18 +30,9 @@ $h = @"
   var dateOfMonth = currentDate.getDate();
   var dayOfWeek = ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var monthOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decemeber'];
-  if ((hours < 10)) {
-    time.innerHTML = '0' + hours + ':' + minutes;
-  } else {
-    time.innerHTML = hours + ':' + minutes;
-  }
-  if ((minutes < 10)) {
-    time.innerHTML = hours + ':' + '0' + minutes;
-  } else {
-    time.innerHTML = hours + ':' + minutes;
-  }
+  if ((hours < 10)) {time.innerHTML = '0' + hours + ':' + minutes;} else {time.innerHTML = hours + ':' + minutes;}
+  if ((minutes < 10)) {time.innerHTML = hours + ':' + '0' + minutes;} else {time.innerHTML = hours + ':' + minutes;}
   dateElem.innerHTML = dayOfWeek[day] + ", " + monthOfYear[month] + ' ' + dateOfMonth;
-
   function myFunction() {
     setTimeout(function() {
       window.location.href = 'login.html';
