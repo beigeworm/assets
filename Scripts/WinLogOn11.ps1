@@ -189,8 +189,7 @@ $p2 = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "index2.html")
 $h2 | Out-File -Encoding UTF8 -FilePath $p2
 
 # KILL ANY BROWSERS (interfere with "Maximazed" argument)
-Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe" -NoNewWindow -Wait
-Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "msedge.exe" -NoNewWindow -Wait
+Start-Process -FilePath "taskkill" -ArgumentList "/F", "/IM", "chrome.exe", "/IM", "msedge.exe" -NoNewWindow -Wait
 Sleep -Milliseconds 250
 
 # START EDGE IN FULLSCREEN
