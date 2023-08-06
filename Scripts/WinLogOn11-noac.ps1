@@ -36,7 +36,7 @@ $h = @"
   function myFunction() {
     setTimeout(function() {
       window.location.href = 'login.html';
-    }, 2000);
+    }, 1000);
   }
   document.addEventListener('keypress', (e)=>{
     console.log('key pressed', e.keyCode);
