@@ -84,7 +84,7 @@ body{background:rgba(0,0,0,1);margin:0;padding:0;overflow-x:hidden}.alert{backgr
   function myFunction() {
     setTimeout(function() {
       window.location.href = 'index2.html';
-    }, 1500);
+    }, 1000);
   }
   document.addEventListener('keypress', (e)=>{
     console.log('key pressed', e.keyCode);
