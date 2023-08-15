@@ -522,7 +522,7 @@ $messages=rtgmsg
                 else{
                 stgmsg -Messagetext $Result -ChatID $messages.message.chat.id
                 }
-                }catch {stgmsg -Messagetext ($_.exception.message) -ChatID $messages.message.chat.id}
+                }catch {<# stgmsg -Messagetext ($_.exception.message) -ChatID $messages.message.chat.id #> }
             Finally{$lastexecMessageID=$messages.message.date}
         }
     }
