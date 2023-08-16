@@ -523,20 +523,18 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
 }
 
 Function ToggleErrors{
-
 If($errormsg -eq 0){
     $errormsg = 1
     $contents = "$tick Error Messaging ON $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
     Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
-If($errormsg -eq 1){
+else{
     $errormsg = 0
     $contents = "$closed Error Messaging OFF $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
     Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
-
 }
 
 
