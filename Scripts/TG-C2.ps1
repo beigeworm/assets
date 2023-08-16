@@ -11,7 +11,7 @@ $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
-$errormsg = 0 # 1 = return error messages (off by default)
+$global:errormsg = 0 # 1 = return error messages (off by default)
 
 # Emoji characters
 $tick = [char]::ConvertFromUtf32(0x2705)
@@ -523,20 +523,21 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
 }
 
 Function ToggleErrors{
-If($errormsg -eq 0){
-    $errormsg = 1
+If($global:errormsg -eq 0){
+    $global:errormsg = 1
     $contents = "$tick Error Messaging ON $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
     Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    return
     }
-else{
-    $errormsg = 0
+If($global:errormsg -eq 1){
+    $global:errormsg = 0
     $contents = "$closed Error Messaging OFF $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
     Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    return
     }
 }
-
 
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
 
@@ -599,7 +600,7 @@ $messages=rtgmsg
                 stgmsg -Messagetext $Result -ChatID $messages.message.chat.id
                 }
                 }catch {
-                    if($errormsg -eq 1){
+                    if($global:errormsg -eq 1){
                     stgmsg -Messagetext ($_.exception.message) -ChatID $messages.message.chat.id
                     }
                 }
