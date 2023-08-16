@@ -351,23 +351,7 @@ Remove-Item -Path $FilePath -Force
 
 Function ShowButtons{
 $messagehead = "Press a Button to Continue..."
-$inlineKeyboardJson = @"
-{
-    "inline_keyboard": [
-        [
-            {
-                "text": "Enter Commands",
-                "callback_data": "button_clicked"
-            },
-            {
-                "text": "Options",
-                "callback_data": "button2_clicked"
-            }
-    
-        ]
-    ]
-}
-"@
+$inlineKeyboardJson = '{"inline_keyboard":[[{"text": "Enter Commands","callback_data": "button_clicked"},{"text": "Options","callback_data": "button2_clicked"}]]}'
 $paramers = @{
     chat_id = $chatId
     text = $messagehead
