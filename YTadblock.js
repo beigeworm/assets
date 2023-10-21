@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Remove Adblock Thing
+// @name         Remove YouTube Ads
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Removes Adblock Thing
