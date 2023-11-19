@@ -10,7 +10,6 @@
 // @downloadURL  https://raw.githubusercontent.com/beigeworm/assets/main/YTadblock.js
 // @grant        none
 // ==/UserScript==
-
 (function()
  {
     //
@@ -92,7 +91,7 @@
 
             const bodyStyle = document.body.style;
 
-            bodyStyle.setProperty('overflow-y', 'scroll', 'important');
+            bodyStyle.setProperty('overflow-y', 'auto', 'important');
 
             if (modalOverlay) {
                 modalOverlay.removeAttribute("opened");
@@ -108,7 +107,7 @@
                 unpausedAfterSkip = 2;
 
                 fullScreenButton.dispatchEvent(mouseEvent);
-              
+
                 setTimeout(() => {
                   fullScreenButton.dispatchEvent(mouseEvent);
                 }, 500);
@@ -119,16 +118,9 @@
             // Check if the video is paused after removing the popup
             if (!unpausedAfterSkip > 0) return;
 
-
-            if (video1) {
-                // UnPause The Video
-                if (video1.paused) unPauseVideo();
-                else if (unpausedAfterSkip > 0) unpausedAfterSkip--;
-            }
-            if (video2) {
-                if (video2.paused) unPauseVideo();
-                else if (unpausedAfterSkip > 0) unpausedAfterSkip--;
-            }
+            // UnPause The Video
+            unPauseVideo(video1);
+            unPauseVideo(video2);
 
         }, 1000);
     }
@@ -145,6 +137,8 @@
             const mainContainer = document.querySelector('div#main-container.style-scope.ytd-promoted-video-renderer');
             const feedAd = document.querySelector('ytd-in-feed-ad-layout-renderer');
             const mastheadAd = document.querySelector('.ytd-video-masthead-ad-v3-renderer');
+            const sponsor = document.querySelectorAll("div#player-ads.style-scope.ytd-watch-flexy, div#panels.style-scope.ytd-watch-flexy");
+            const nonVid = document.querySelector(".ytp-ad-skip-button-modern");
 
             if (ad)
             {
@@ -161,36 +155,56 @@
             mainContainer?.remove();
             feedAd?.remove();
             mastheadAd?.remove();
+            sponsor?.forEach((element) => {
+                 if (element.getAttribute("id") === "panels") {
+                    element.childNodes?.forEach((childElement) => {
+                      if (childElement.data.targetId && childElement.data.targetId !=="engagement-panel-macro-markers-description-chapters")
+                          //Skipping the Chapters section
+                            childElement.remove();
+                          });
+                       } else {
+                           element.remove();
+                       }
+             });
+            nonVid?.click();
         }, 50)
     }
     // Unpause the video Works most of the time
-    function unPauseVideo()
+    function unPauseVideo(video)
     {
-        // Simulate pressing the "k" key to unpause the video
-        document.dispatchEvent(keyEvent);
-        unpausedAfterSkip = 0;
-        if (debug) console.log("Remove Adblock Thing: Unpaused video using 'k' key");
+        if (!video) return;
+        if (video.paused) {
+            // Simulate pressing the "k" key to unpause the video
+            document.dispatchEvent(keyEvent);
+            unpausedAfterSkip = 0;
+            if (debug) console.log("Remove Adblock Thing: Unpaused video using 'k' key");
+        } else if (unpausedAfterSkip > 0) unpausedAfterSkip--;
     }
     function removeJsonPaths(domains, jsonPaths)
     {
         const currentDomain = window.location.hostname;
         if (!domains.includes(currentDomain)) return;
 
-        jsonPaths.forEach(jsonPath =>{
+        jsonPaths.forEach(jsonPath => {
             const pathParts = jsonPath.split('.');
             let obj = window;
-            for (const part of pathParts)
-            {
-                if (obj.hasOwnProperty(part))
-                {
+            let previousObj = null;
+            let partToSetUndefined = null;
+
+            for (const part of pathParts) {
+                if (obj.hasOwnProperty(part)) {
+                    previousObj = obj; // Keep track of the parent object.
+                    partToSetUndefined = part; // Update the part that we may set to undefined.
                     obj = obj[part];
-                }
-                else
-                {
-                    break;
+                } else {
+                    break; // Stop when we reach a non-existing part.
                 }
             }
-            obj = undefined;
+
+            // If we've identified a valid part to set to undefined, do so.
+            if (previousObj && partToSetUndefined !== null) {
+                previousObj[partToSetUndefined] = undefined;
+            }
         });
     }
     // Observe and remove ads when new content is loaded dynamically
