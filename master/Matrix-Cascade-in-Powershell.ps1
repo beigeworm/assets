@@ -1,14 +1,3 @@
-﻿<#
-========================== Matrix Character Cascade in Powershell =================================
-
-SYNOPSIS
-Matrix Style Screensaver in Powershell.
-
-USAGE
-1. Run script
-2. Press any key to close.
-
-#>
 
 $wshell = New-Object -ComObject wscript.shell;
 $wshell.AppActivate("Powershell.exe")
