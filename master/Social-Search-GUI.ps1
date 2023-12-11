@@ -296,5 +296,5 @@ if ($StatusCode -eq "200"){
 
 
  
-$MainWindow.ShowDialog() | Out-Null
-exit 
+$MainWindow.ShowDialog()
+
