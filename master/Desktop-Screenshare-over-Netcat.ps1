@@ -16,7 +16,7 @@ Then in a firefox browser goto  > http://localhost:8080
 #>
 
 #================================ CHANGE THESE ===============================
-$IP = "IP_ADDRESS_OR_DOMAIN_HERE"
+$IP = "$NCurl" # <---- YOUR_DOMAIN_HERE
 $PORT = "9000"
 #=============================================================================
 
