@@ -1,15 +1,3 @@
-<#
-====================== beigeworm's Social Search GUI ==========================
-
-SYNOPSIS
-This script presents a GUI for searching popular websites with a single username..
-
-USAGE
-1. Run script with powershell
-2. Input your desired username
-3. Press "Start Search"
-
-#>
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
