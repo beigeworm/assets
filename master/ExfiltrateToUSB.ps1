@@ -65,5 +65,5 @@ foreach ($folder in $foldersToSearch) {
     else{
         Write-Host "File Exfiltration Complete"
     }
-}
+
 pause
