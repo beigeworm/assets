@@ -1,7 +1,6 @@
-﻿
-$nighturl = "https://github.com/beigeworm/assets/blob/9778af579c85e76aaafce2f8148e097665c6dd0a/WPchange/night.jpg"
+$nighturl = "https://github.com/beigeworm/assets/blob/main/WPchange/night.jpg?raw=true"
 $nightpath = "$env:temp\night.jpg"
-$dayurl = "https://github.com/beigeworm/assets/blob/9778af579c85e76aaafce2f8148e097665c6dd0a/WPchange/day.jpg"
+$dayurl = "https://github.com/beigeworm/assets/blob/main/WPchange/day.jpg?raw=true"
 $daypath = "$env:temp\day.jpg"
 $statepath = "$env:temp\current.log"
 $state = Get-Content $statepath -Raw
