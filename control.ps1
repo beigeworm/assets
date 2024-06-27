@@ -1,3 +1,14 @@
+<#
+
+ADD YOUR TOKEN AND OPTIONAL WEBHOOK INSIDE THE EMPTY QUOTES
+SAVE TO A PASTEBIN FILE NAMED 'file.json' 
+
+{
+  "tk": "",
+  "wh": ""
+}
+
+#>
 
 $keys = irm "$keys" # REPLACE WITH YOUR PASTEBIN RAW URL
 
